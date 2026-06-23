@@ -9,14 +9,15 @@
 
             <div class="receipt-top">
                 <div class="receipt-brand-row">
-                    <div class="receipt-logo">P</div>
+                    <div class="receipt-logo" style="padding: 0; overflow: hidden; background: transparent;">
+                        <img src="{{ asset('431219605_1100922654446504_1462438396502192723_n.jpg') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+                    </div>
                     <div>
                         <p class="receipt-eyebrow">Transcent Profumo</p>
                         <h2 class="receipt-title">Shipping Receipt</h2>
                         <p class="text-slate section-lead">Review or print the receipt for this order.</p>
                     </div>
                 </div>
-                <div class="receipt-badge badge-gray" id="receipt-order-status">Status</div>
             </div>
 
             <div class="receipt-section">

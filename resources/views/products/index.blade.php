@@ -6,7 +6,10 @@
     <div class="dashboard-wrapper">
         <div class="brand-panel">
             <div class="brand-row">
-                <div class="brand-chip">T</div>
+                @include('partials.user-menu')
+                <div class="brand-chip">
+                    <img src="{{ asset('431219605_1100922654446504_1462438396502192723_n.jpg') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
                 <div class="brand-title">
                     <h1>Transcent Profumo</h1>
                     <p>Premium POS · Product Management</p>
@@ -15,7 +18,6 @@
             <div class="action-group">
                 <a href="{{ route('orders.index') }}" class="btn btn-ghost">← Back to Orders</a>
                 <button id="openAddProductModal" type="button" class="btn btn-primary">Add New Product</button>
-                @include('partials.user-menu')
             </div>
         </div>
 
@@ -78,7 +80,7 @@
                                             <strong>{{ $product->name }}</strong>
                                         </td>
                                         <td>
-                                            <span class="status-badge status-badge-completed" style="background:#f1f5f9; color:#475569; border-color:#cbd5e1;">{{ $product->total_sold }}</span>
+                                            <span class="status-badge status-badge-sold" style="background:#f1f5f9; color:#475569; border-color:#cbd5e1;">{{ $product->total_sold }}</span>
                                         </td>
                                         <td>{{ $product->created_at->format('M d, Y') }}</td>
                                         <td>

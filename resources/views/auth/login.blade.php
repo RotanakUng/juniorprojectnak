@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Transcent Profumo · Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
         :root {
-            --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --accent-gold: #334155;
+            --accent-gold-light: rgba(71, 85, 105, 0.08);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -302,7 +305,7 @@
             min-height: 54px;
             padding: 0 18px;
             border: none;
-            border-radius: 999px;
+            border-radius: 14px;
             background: #111111;
             color: #fff;
             font-weight: 700;
@@ -416,7 +419,9 @@
     {{-- Left: Brand Panel --}}
     <div class="login-brand-panel">
         <div class="brand-content">
-            <div class="brand-logo">T</div>
+            <div class="brand-logo" style="padding: 0; overflow: hidden; border: none; background: transparent;">
+                <img src="{{ asset('431219605_1100922654446504_1462438396502192723_n.jpg') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+            </div>
             <h1>Transcent Profumo</h1>
             <p>Your premium point-of-sale system for managing orders, products, and your team.</p>
 

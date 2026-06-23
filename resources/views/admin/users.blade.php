@@ -6,7 +6,10 @@
     <div class="dashboard-wrapper">
         <div class="brand-panel">
             <div class="brand-row">
-                <div class="brand-chip">T</div>
+                @include('partials.user-menu')
+                <div class="brand-chip">
+                    <img src="{{ asset('431219605_1100922654446504_1462438396502192723_n.jpg') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
                 <div class="brand-title">
                     <h1>Transcent Profumo</h1>
                     <p>Admin Panel · User Management</p>
@@ -14,7 +17,6 @@
             </div>
             <div class="action-group">
                 <a href="{{ route('orders.index') }}" class="btn btn-ghost">← Back to Orders</a>
-                @include('partials.user-menu')
             </div>
         </div>
 
@@ -58,9 +60,9 @@
                                     <td style="text-align:left; color:#64748b;">{{ $user->username }}</td>
                                     <td>
                                         @if($user->isAdmin())
-                                            <span class="status-badge" style="color:#1e40af; background:#eff6ff; border:1px solid #bfdbfe;">Admin</span>
+                                            <span class="role-badge" style="color:#1e40af; background:#eff6ff; border:1px solid #bfdbfe;">Admin</span>
                                         @else
-                                            <span class="status-badge" style="color:#166534; background:#f0fdf4; border:1px solid #bbf7d0;">Staff</span>
+                                            <span class="role-badge" style="color:#166534; background:#f0fdf4; border:1px solid #bbf7d0;">Staff</span>
                                         @endif
                                     </td>
                                     <td style="color:#64748b; font-size:0.9rem;">{{ $user->created_at->format('M d, Y') }}</td>
@@ -68,10 +70,10 @@
                                         <div class="row-actions" style="justify-content:center;">
                                             <button type="button" class="btn btn-secondary btn-small" data-user='@json($user, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT)' onclick="openEditModal(JSON.parse(this.getAttribute('data-user')))">Edit</button>
                                             @if($user->id !== auth()->id())
-                                                <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                <form id="deleteForm-{{ $user->id }}" method="POST" action="{{ route('admin.users.destroy', $user) }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                                                    <button type="button" class="btn btn-danger btn-small" onclick="openDeleteModal('{{ $user->id }}', '{{ addslashes($user->name) }}')">Delete</button>
                                                 </form>
                                             @else
                                                 <span style="font-size:0.8rem; color:#94a3b8; font-weight:600;">(You)</span>
@@ -132,6 +134,26 @@
                     <button type="submit" class="btn btn-primary" id="userSubmitBtn">Create User</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    {{-- Delete User Modal --}}
+    <div id="deleteModalBackdrop" class="modal-backdrop" style="display:none;" onclick="closeDeleteModal()"></div>
+    <div id="deleteModalContainer" class="modal-container" style="display:none;">
+        <div class="modal-card" style="max-width: 400px; text-align: center;" onclick="event.stopPropagation()">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 24px; height: 24px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 8px;">Delete User</h2>
+            <p style="color: #6b7280; font-size: 0.95rem; margin-bottom: 24px;">
+                Are you sure you want to delete <strong id="deleteModalUserName" style="color:#111827;"></strong>?<br>This action cannot be undone.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()" style="flex: 1;">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()" style="flex: 1;">Yes, Delete</button>
+            </div>
         </div>
     </div>
 @endsection
@@ -200,8 +222,34 @@
         }
     }
 
+    let currentDeleteId = null;
+
+    function openDeleteModal(userId, userName) {
+        currentDeleteId = userId;
+        document.getElementById('deleteModalUserName').textContent = userName;
+        document.getElementById('deleteModalBackdrop').style.display = '';
+        document.getElementById('deleteModalContainer').style.display = '';
+        document.body.classList.add('modal-open');
+    }
+
+    function closeDeleteModal() {
+        currentDeleteId = null;
+        document.getElementById('deleteModalBackdrop').style.display = 'none';
+        document.getElementById('deleteModalContainer').style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+
+    function confirmDelete() {
+        if (currentDeleteId) {
+            document.getElementById('deleteForm-' + currentDeleteId).submit();
+        }
+    }
+
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeUserModal();
+        if (e.key === 'Escape') {
+            closeUserModal();
+            closeDeleteModal();
+        }
     });
 </script>
 @endpush

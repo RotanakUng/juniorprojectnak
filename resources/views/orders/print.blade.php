@@ -6,7 +6,7 @@
     <title>Print Receipt</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --color-not-yet: #fff7ed; --text-not-yet: #9a3412; --border-not-yet: #fed7aa;
@@ -16,7 +16,7 @@
         }
         body { 
             margin: 0; 
-            font-family: 'Inter', system-ui, sans-serif; 
+            font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; 
             background: #f8fafc; 
             color: #111827; 
             -webkit-print-color-adjust: exact !important; 

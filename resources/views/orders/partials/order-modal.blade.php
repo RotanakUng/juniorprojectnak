@@ -77,7 +77,7 @@
                         <style>
                             .product-autocomplete { position: relative; width: 100%; }
                             .product-autocomplete input[type="text"] { width: 100%; }
-                            .product-dropdown { position: fixed; background: #fff; border: 1px solid #dbe3ef; border-radius: 14px; box-shadow: 0 12px 32px rgba(15,23,42,0.14); z-index: 10000; max-height: 200px; overflow-y: auto; display: none; padding: 6px; }
+                            .product-dropdown { position: fixed; background: #fff; border: 1px solid #dbe3ef; border-radius: 14px; box-shadow: 0 12px 32px rgba(15,23,42,0.14); z-index: 11500; max-height: 200px; overflow-y: auto; display: none; padding: 6px; }
                             .product-dropdown.show { display: block; }
                             .product-dropdown-item { padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; color: #1f2937; transition: background .12s; }
                             .product-dropdown-item:hover, .product-dropdown-item.active { background: #f4f4f5; color: #111; }

@@ -1,14 +1,15 @@
 <div class="receipt-panel">
     <div class="receipt-top">
         <div style="display:flex; gap:14px; align-items:center;">
-            <div class="receipt-logo">P</div>
+            <div class="receipt-logo" style="padding: 0; overflow: hidden; background: transparent;">
+                <img src="{{ asset('431219605_1100922654446504_1462438396502192723_n.jpg') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+            </div>
             <div>
                 <p style="margin:0; font-size:0.85rem; color:#4b5563; text-transform:uppercase; letter-spacing:0.12em;">Transcent Profumo</p>
                 <h2 style="margin:6px 0 0;">Shipping Receipt</h2>
                 <p class="text-slate" style="margin:6px 0 0;">Review or print the receipt for this order.</p>
             </div>
         </div>
-        <div class="receipt-badge status-badge status-badge-{{ strtolower(str_replace(' ', '-', $order->status)) }}">{{ $order->status }}</div>
     </div>
 
     <div class="receipt-section">
