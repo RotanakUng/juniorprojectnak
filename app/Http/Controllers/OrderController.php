@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -253,11 +254,7 @@ class OrderController extends Controller
 
     public function downloadPdf(Order $order)
     {
-        if (! class_exists('Barryvdh\DomPDF\Facade\Pdf')) {
-            return Redirect::route('orders.index')->with('error', 'Install barryvdh/laravel-dompdf using composer require barryvdh/laravel-dompdf to enable PDF downloads.');
-        }
-
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('orders.pdf', [
+        $pdf = Pdf::loadView('orders.pdf', [
             'order' => $order->load('orderItems'),
         ]);
 
