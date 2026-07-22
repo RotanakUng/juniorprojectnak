@@ -52,10 +52,115 @@
         
         .text-slate { color: #64748b; }
 
+        /* --- 80mm x 80mm SQUARE PRINT STYLES --- */
         @media print { 
-            body { background: #fff; } 
-            .receipt-panel { box-shadow: none; margin: 0; border-radius: 0; padding: 0; } 
-            @page { margin: 1cm; }
+            @page {
+                size: 80mm 80mm; /* Strict square dimensions */
+                margin: 0;       /* No default browser margins */
+            }
+            body { 
+                background: #fff; 
+                color: #000;
+                font-size: 11px;
+                line-height: 1.2;
+            } 
+            .receipt-panel { 
+                box-shadow: none; 
+                margin: 0; 
+                border-radius: 0; 
+                padding: 3mm 4mm; /* Compact padding */
+                width: 80mm !important;
+                height: 80mm !important;
+                max-width: 80mm !important;
+                max-height: 80mm !important;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between; /* Fits layout vertically */
+                overflow: hidden; /* Prevents spilling to 2nd label */
+            }
+            .receipt-top {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 8px;
+            }
+            .receipt-top div:first-child {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .receipt-top p, .receipt-top .text-slate {
+                display: none !important; /* Hide description subtitles to save height */
+            }
+            .receipt-logo {
+                width: 32px !important;
+                height: 32px !important;
+                border-radius: 8px !important;
+            }
+            .receipt-top h2 {
+                font-size: 13px !important;
+                margin: 0 !important;
+            }
+            .receipt-section {
+                margin-top: 4px !important;
+                gap: 6px !important;
+            }
+            /* Make key details columns stack vertically or fit nicely */
+            .receipt-row {
+                grid-template-columns: 1.2fr 0.8fr !important;
+                gap: 6px !important;
+            }
+            .receipt-box {
+                padding: 6px !important;
+                border-radius: 8px !important;
+                background: #fff !important;
+                border: 1px solid #000 !important;
+                font-size: 9.5px !important;
+            }
+            .receipt-box strong {
+                font-size: 10px !important;
+                display: block;
+            }
+            .receipt-box p.text-slate {
+                margin: 0 0 2px 0 !important;
+                font-size: 8px !important;
+                font-weight: bold;
+                text-transform: uppercase;
+                color: #000 !important;
+            }
+            .receipt-box .spaced {
+                margin-top: 4px !important;
+            }
+            /* Table formatting */
+            .receipt-items {
+                margin-top: 4px !important;
+            }
+            .receipt-items th, .receipt-items td {
+                padding: 3px 2px !important;
+                font-size: 9px !important;
+                border-bottom: 1px solid #000 !important;
+            }
+            .receipt-items th {
+                color: #000 !important;
+                font-weight: bold;
+            }
+            /* Total section: monochrome and simple */
+            .receipt-total-box {
+                background: #fff !important;
+                color: #000 !important;
+                border-top: 1.5px dashed #000 !important;
+                border-bottom: 1.5px dashed #000 !important;
+                border-radius: 0 !important;
+                padding: 6px 0 !important;
+                margin-top: 6px !important;
+                font-size: 11px !important;
+                font-weight: bold;
+            }
+            /* Hide non-essential brand footer (saves critical space) */
+            .receipt-footer {
+                display: none !important;
+            }
         }
     </style>
 </head>

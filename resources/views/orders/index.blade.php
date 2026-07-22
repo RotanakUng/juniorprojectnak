@@ -384,7 +384,22 @@ window.openReceiptModal = async function (orderId) {
 window.printReceipt = function () {
     const printLink = document.getElementById('receipt-print-link');
     const url = printLink ? printLink.dataset.printUrl : '';
-    if (url) window.open(url, '_blank');
+    if (!url) return;
+
+    let iframe = document.getElementById('receipt-print-iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'receipt-print-iframe';
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
+    }
+    // Append a timestamp parameter to bypass cache and guarantee print script execution on subsequent clicks
+    iframe.src = url + (url.indexOf('?') !== -1 ? '&' : '?') + 't=' + Date.now();
 };
 
 document.addEventListener('DOMContentLoaded', function () {
