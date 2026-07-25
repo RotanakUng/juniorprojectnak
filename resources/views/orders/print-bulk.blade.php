@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Print Receipt</title>
+    <title>Bulk Print Receipts ({{ $orders->count() }})</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -28,9 +28,38 @@
         }
 
         /* ===== WEB / SCREEN STYLES ===== */
+        .bulk-header-bar {
+            max-width: 780px;
+            margin: 24px auto 0;
+            padding: 16px 24px;
+            background: #0f172a;
+            color: #ffffff;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bulk-header-bar h1 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .bulk-header-bar button {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
         .receipt-panel { 
             width: min(100%, 780px); 
-            margin: 32px auto; 
+            margin: 24px auto; 
             background: var(--surface); 
             border-radius: 24px; 
             padding: 32px; 
@@ -272,12 +301,16 @@
         }
 
         /* =========================================================
-           80mm × 80mm STRICT PRINT STYLES
+           80mm × 80mm BATCH PRINT STYLES (PAGE BREAK AFTER EACH LABEL)
            ========================================================= */
         @media print { 
             @page {
                 size: 80mm 80mm;
                 margin: 0;
+            }
+
+            .bulk-header-bar {
+                display: none !important;
             }
 
             body { 
@@ -304,6 +337,15 @@
                 overflow: hidden !important;
                 border: 1.2px solid #000000 !important;
                 gap: 0 !important;
+
+                /* Force page break after each 80mm label */
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+
+            .receipt-panel:last-child {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
             }
 
             .receipt-header-row {
@@ -519,7 +561,19 @@
     </style>
 </head>
 <body>
-    @include('orders.partials.receipt', ['order' => $order])
-    <script>window.print();</script>
+    <div class="bulk-header-bar no-print">
+        <h1>Batch Printing {{ $orders->count() }} Labels</h1>
+        <button type="button" onclick="window.print()">Print All {{ $orders->count() }} Labels</button>
+    </div>
+
+    @foreach($orders as $order)
+        @include('orders.partials.receipt', ['order' => $order])
+    @endforeach
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            window.print();
+        });
+    </script>
 </body>
 </html>

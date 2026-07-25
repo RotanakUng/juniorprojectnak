@@ -49,14 +49,8 @@
             <div class="card-body details-grid">
                 <div class="detail-cell">
                     <span class="info-label">Delivery</span>
-                    <strong class="badge-value">{{ $order->delivery_type }}</strong>
+                    <strong class="info-value">{{ $order->delivery_type }}</strong>
                 </div>
-                @if($order->shipping_zone)
-                    <div class="detail-cell">
-                        <span class="info-label">Zone</span>
-                        <strong class="badge-value zone-value">{{ $order->shipping_zone }}</strong>
-                    </div>
-                @endif
                 <div class="detail-cell">
                     <span class="info-label">Payment</span>
                     <strong class="info-value">{{ $order->payment_type }}</strong>

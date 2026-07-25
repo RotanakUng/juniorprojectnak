@@ -55,11 +55,7 @@
                     <div class="card-body details-grid">
                         <div class="detail-cell">
                             <span class="info-label">Delivery</span>
-                            <strong class="badge-value" id="receipt-delivery-type">WALK IN</strong>
-                        </div>
-                        <div class="detail-cell">
-                            <span class="info-label">Zone</span>
-                            <strong class="badge-value zone-value" id="receipt-shipping-zone">In City</strong>
+                            <strong class="info-value" id="receipt-delivery-type">WALK IN</strong>
                         </div>
                         <div class="detail-cell">
                             <span class="info-label">Payment</span>

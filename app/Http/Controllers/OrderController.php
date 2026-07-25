@@ -64,7 +64,6 @@ class OrderController extends Controller
             'payment_type' => ['required', 'string', 'max:50'],
             'payment_status' => ['required', Rule::in(['Unpaid', 'Paid'])],
             'delivery_type' => ['required', 'string', 'max:50'],
-            'shipping_zone' => ['nullable', Rule::in(['In City', 'Out of City'])],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_name' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -85,7 +84,6 @@ class OrderController extends Controller
                 'payment_type' => $validated['payment_type'],
                 'payment_status' => $validated['payment_status'],
                 'delivery_type' => $validated['delivery_type'],
-                'shipping_zone' => $validated['shipping_zone'] ?? null,
                 'status' => 'In Progress',
                 'total_price' => 0,
             ]);
@@ -118,7 +116,6 @@ class OrderController extends Controller
             'payment_type' => ['required', 'string', 'max:50'],
             'payment_status' => ['required', Rule::in(['Unpaid', 'Paid'])],
             'delivery_type' => ['required', 'string', 'max:50'],
-            'shipping_zone' => ['nullable', Rule::in(['In City', 'Out of City'])],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_name' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -138,7 +135,6 @@ class OrderController extends Controller
                 'payment_type' => $validated['payment_type'],
                 'payment_status' => $validated['payment_status'],
                 'delivery_type' => $validated['delivery_type'],
-                'shipping_zone' => $validated['shipping_zone'] ?? null,
             ]);
 
             $order->orderItems()->delete();
@@ -273,6 +269,66 @@ class OrderController extends Controller
 
         return view('orders.print', [
             'order' => $order->load('orderItems'),
+        ]);
+    }
+
+    public function printBulk(Request $request)
+    {
+        $idsRaw = $request->query('ids', '');
+        $ids = array_filter(array_map('intval', explode(',', $idsRaw)));
+
+        $orders = Order::with('orderItems')
+            ->whereIn('id', $ids)
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return Redirect::route('orders.index')->with('error', 'No orders selected for printing.');
+        }
+
+        foreach ($orders as $order) {
+            if ($order->status === 'In Progress') {
+                $order->update(['status' => 'Completed']);
+            }
+        }
+
+        return view('orders.print-bulk', [
+            'orders' => $orders,
+        ]);
+    }
+
+    public function apiLatest(Request $request)
+    {
+        $sinceId = (int) $request->query('since_id', 0);
+        $lastSync = $request->query('last_sync');
+
+        $newOrders = Order::with('orderItems')
+            ->where('id', '>', $sinceId)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $maxId = $newOrders->max('id') ?? $sinceId;
+
+        $updatedQuery = Order::query();
+        if ($lastSync) {
+            try {
+                $updatedQuery->where('updated_at', '>=', \Carbon\Carbon::parse($lastSync));
+            } catch (\Exception $e) {
+                $updatedQuery->where('updated_at', '>=', now()->subSeconds(15));
+            }
+        } else {
+            $updatedQuery->where('updated_at', '>=', now()->subSeconds(15));
+        }
+
+        $updatedOrders = $updatedQuery->where('id', '<=', $sinceId)->get(['id', 'status']);
+        $activeIds = Order::pluck('id')->toArray();
+
+        return response()->json([
+            'count' => $newOrders->count(),
+            'max_id' => $maxId,
+            'orders' => $newOrders,
+            'updated_statuses' => $updatedOrders,
+            'active_ids' => $activeIds,
+            'server_time' => now()->toIso8601String(),
         ]);
     }
 }

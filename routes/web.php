@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
     Route::get('/orders/export/csv', [OrderController::class, 'exportCsv'])->name('orders.export');
+    Route::get('/orders/print-bulk', [OrderController::class, 'printBulk'])->name('orders.print-bulk');
+    Route::get('/api/orders/latest', [OrderController::class, 'apiLatest'])->name('orders.api.latest');
     Route::get('/orders/{order}/pdf', [OrderController::class, 'downloadPdf'])->name('orders.pdf');
     Route::get('/orders/{order}/print', [OrderController::class, 'print'])->name('orders.print');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');

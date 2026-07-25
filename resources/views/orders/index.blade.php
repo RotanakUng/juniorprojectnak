@@ -170,7 +170,13 @@
                         <h2 class="text-lg" style="margin:0;">Orders</h2>
                         <p class="text-slate section-lead">Manage orders, update status, and print receipts.</p>
                     </div>
-                    <span class="orders-count">{{ $orders->count() }} order{{ $orders->count() === 1 ? '' : 's' }}</span>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button type="button" id="bulk-print-btn" class="btn btn-primary btn-small" style="display: none; align-items: center; gap: 6px; background: #000; color: #fff;" onclick="triggerBulkPrint()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            <span>Print Selected (<span id="selected-count">0</span>)</span>
+                        </button>
+                        <span class="orders-count">{{ $orders->count() }} order{{ $orders->count() === 1 ? '' : 's' }}</span>
+                    </div>
                 </div>
 
                 @if($orders->isEmpty())
@@ -189,9 +195,10 @@
                         <table class="table orders-table">
                             <thead>
                                 <tr>
+                                    <th style="width: 44px;"></th>
                                     <th>Customer Name</th>
                                     <th>Order Date</th>
-                                    <th>Shipping Zone</th>
+                                    <th>Delivery Type</th>
                                     <th>Items</th>
                                     <th>Total</th>
                                     <th>Status</th>
@@ -200,10 +207,11 @@
                             </thead>
                             <tbody>
                                 @foreach($orders as $order)
-                                    <tr>
+                                    <tr data-order-id="{{ $order->id }}">
+                                        <td style="width: 44px; text-align: center;"><input type="checkbox" class="order-checkbox" value="{{ $order->id }}" style="width:16px; height:16px; cursor:pointer;" onchange="updateBulkPrintState()"></td>
                                         <td>{{ $order->customer_name }}</td>
                                         <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
-                                        <td>{{ $order->shipping_zone ?? '—' }}</td>
+                                        <td>{{ $order->delivery_type }}</td>
                                         <td>
                                             <div class="order-items-list">
                                                 @foreach($order->orderItems as $item)
@@ -353,7 +361,6 @@ window.openReceiptModal = async function (orderId) {
         setText('receipt-payment-type', order.payment_type);
         setText('receipt-payment-status', order.payment_status);
         setText('receipt-delivery-type', order.delivery_type);
-        setText('receipt-shipping-zone', order.shipping_zone);
         setText('receipt-total-value', formatReceiptMoney(order.total_price));
 
         const itemsBody = document.getElementById('receipt-items-body');
@@ -601,7 +608,240 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Batch Label Printing JS
+    window.toggleSelectAllOrders = function(master) {
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+        updateBulkPrintState();
+    };
+
+    window.updateBulkPrintState = function() {
+        const selected = document.querySelectorAll('.order-checkbox:checked');
+        const btn = document.getElementById('bulk-print-btn');
+        const countEl = document.getElementById('selected-count');
+        const master = document.getElementById('select-all-orders');
+        const allCheckboxes = document.querySelectorAll('.order-checkbox');
+
+        if (countEl) countEl.textContent = selected.length;
+        if (btn) btn.style.display = selected.length > 0 ? 'inline-flex' : 'none';
+        if (master && allCheckboxes.length > 0) {
+            master.checked = selected.length === allCheckboxes.length;
+        }
+    };
+
+    window.triggerBulkPrint = function() {
+        const selected = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+        if (selected.length === 0) return;
+        const url = '/orders/print-bulk?ids=' + selected.join(',');
+        window.open(url, '_blank');
+    };
+
+    // Real-Time Live Order & Status Syncing (5-second smart background polling)
+    window.maxRenderedOrderId = {{ $orders->max('id') ?? 0 }};
+    window.lastSyncTime = new Date().toISOString();
+    let isLiveSyncing = false;
+
+    function playNewOrderChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc1.type = 'sine';
+            osc2.type = 'sine';
+            osc1.frequency.setValueAtTime(587.33, ctx.currentTime);
+            osc2.frequency.setValueAtTime(880.00, ctx.currentTime + 0.12);
+
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc1.start(ctx.currentTime);
+            osc1.stop(ctx.currentTime + 0.12);
+            osc2.start(ctx.currentTime + 0.12);
+            osc2.stop(ctx.currentTime + 0.5);
+        } catch (e) {}
+    }
+
+    function renderOrderRowHTML(order) {
+        const createdAt = new Date(order.created_at);
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const dateFormatted = months[createdAt.getMonth()] + ' ' 
+            + String(createdAt.getDate()).padStart(2, '0') + ', ' 
+            + createdAt.getFullYear() + ' ' 
+            + String(createdAt.getHours()).padStart(2, '0') + ':' 
+            + String(createdAt.getMinutes()).padStart(2, '0');
+
+        let itemsHTML = '';
+        if (order.order_items && order.order_items.length > 0) {
+            itemsHTML = order.order_items.map(item => `
+                <div class="order-item-line">
+                    <strong>${item.product_name || ''}</strong> · ${item.quantity || 0} x $${parseFloat(item.unit_price || 0).toFixed(2)} = $${parseFloat(item.total_price || 0).toFixed(2)}
+                </div>
+            `).join('');
+        }
+
+        const orderJson = JSON.stringify(order).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+        const statusSlug = (order.status || '').toLowerCase().replace(/ /g, '-');
+
+        return `
+            <td style="width: 44px; text-align: center;"><input type="checkbox" class="order-checkbox" value="${order.id}" style="width:16px; height:16px; cursor:pointer;" onchange="updateBulkPrintState()"></td>
+            <td>${order.customer_name || ''}</td>
+            <td>${dateFormatted}</td>
+            <td>${order.delivery_type || ''}</td>
+            <td><div class="order-items-list">${itemsHTML}</div></td>
+            <td class="col-total">$${parseFloat(order.total_price || 0).toFixed(2)}</td>
+            <td class="status-cell">
+                <form action="/orders/${order.id}/status" method="POST" class="status-form">
+                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]')?.content || ''}">
+                    <input type="hidden" name="_method" value="PATCH">
+                    <input type="hidden" name="status" value="${order.status || ''}" class="status-hidden-input">
+                    <div class="status-dropdown">
+                        <button type="button" class="status-trigger status-pill status-pill-${statusSlug}">
+                            <span class="status-pill-text">${order.status || ''}</span>
+                            <span class="dropdown-arrow">▾</span>
+                        </button>
+                        <div class="status-menu">
+                            <button type="button" class="status-option" data-value="In Progress">In Progress</button>
+                            <button type="button" class="status-option" data-value="Completed">Completed</button>
+                            <button type="button" class="status-option" data-value="Cancelled">Cancelled</button>
+                        </div>
+                    </div>
+                </form>
+            </td>
+            <td>
+                <div class="row-actions">
+                    <button type="button" class="btn btn-secondary btn-small edit-order-btn" data-order='${orderJson}' style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
+                        <span>Edit</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="openReceiptModal(${order.id})" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>View</span>
+                    </button>
+                    <a class="btn btn-secondary btn-small" href="/orders/${order.id}/print" target="_blank" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        <span>Print</span>
+                    </a>
+                </div>
+            </td>
+        `;
+    }
+
+    function checkLiveOrders() {
+        if (isLiveSyncing) return;
+        isLiveSyncing = true;
+
+        const url = '/api/orders/latest?since_id=' + window.maxRenderedOrderId + '&last_sync=' + encodeURIComponent(window.lastSyncTime);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                isLiveSyncing = false;
+                if (!data) return;
+
+                if (data.server_time) {
+                    window.lastSyncTime = data.server_time;
+                }
+
+                // 1. Handle New Orders
+                if (data.count > 0 && Array.isArray(data.orders)) {
+                    window.maxRenderedOrderId = data.max_id;
+                    const tbody = document.querySelector('.orders-table tbody');
+                    if (tbody) {
+                        let newCount = 0;
+                        data.orders.forEach(order => {
+                            if (document.querySelector(`tr[data-order-id="${order.id}"]`)) return;
+
+                            const tr = document.createElement('tr');
+                            tr.setAttribute('data-order-id', order.id);
+                            tr.className = 'new-order-glow';
+                            tr.innerHTML = renderOrderRowHTML(order);
+
+                            tbody.insertBefore(tr, tbody.firstChild);
+                            newCount++;
+
+                            setTimeout(() => tr.classList.remove('new-order-glow'), 4500);
+                        });
+
+                        if (newCount > 0) {
+                            playNewOrderChime();
+                            const countEl = document.querySelector('.orders-count');
+                            if (countEl) {
+                                const current = parseInt(countEl.textContent) || 0;
+                                const updated = current + newCount;
+                                countEl.textContent = updated + ' order' + (updated === 1 ? '' : 's');
+                            }
+                        }
+                    }
+                }
+
+                // 2. Handle Status Updates for Existing Orders
+                if (Array.isArray(data.updated_statuses)) {
+                    data.updated_statuses.forEach(item => {
+                        const row = document.querySelector(`tr[data-order-id="${item.id}"]`);
+                        if (!row) return;
+
+                        const trigger = row.querySelector('.status-trigger');
+                        const textEl = row.querySelector('.status-pill-text');
+                        const hiddenInput = row.querySelector('.status-hidden-input');
+
+                        if (textEl && textEl.textContent.trim() !== item.status) {
+                            textEl.textContent = item.status;
+                            if (hiddenInput) hiddenInput.value = item.status;
+                            
+                            const statusSlug = item.status.toLowerCase().replace(/ /g, '-');
+                            if (trigger) {
+                                trigger.className = 'status-trigger status-pill status-pill-' + statusSlug;
+                                trigger.style.transition = 'all 0.3s ease';
+                                trigger.style.transform = 'scale(1.1)';
+                                setTimeout(() => trigger.style.transform = 'scale(1)', 400);
+                            }
+                        }
+                    });
+                }
+
+                // 3. Handle Order Deletions in Real-Time
+                if (Array.isArray(data.active_ids)) {
+                    const activeSet = new Set(data.active_ids.map(Number));
+                    document.querySelectorAll('tr[data-order-id]').forEach(row => {
+                        const rowId = parseInt(row.getAttribute('data-order-id'));
+                        if (rowId <= window.maxRenderedOrderId && !activeSet.has(rowId)) {
+                            row.style.transition = 'all 0.4s ease';
+                            row.style.opacity = '0';
+                            row.style.transform = 'scale(0.95)';
+                            setTimeout(() => {
+                                row.remove();
+                                const countEl = document.querySelector('.orders-count');
+                                if (countEl) {
+                                    const current = parseInt(countEl.textContent) || 0;
+                                    const updated = Math.max(0, current - 1);
+                                    countEl.textContent = updated + ' order' + (updated === 1 ? '' : 's');
+                                }
+                            }, 400);
+                        }
+                    });
+                }
+            })
+            .catch(() => { isLiveSyncing = false; });
+    }
+
+    setInterval(checkLiveOrders, 5000);
+
 });
 </script>
+<style>
+@keyframes newOrderGlowAnim {
+    0% { background-color: #dcfce7 !important; }
+    100% { background-color: #ffffff !important; }
+}
+.new-order-glow td {
+    animation: newOrderGlowAnim 4.5s ease-out !important;
+}
+</style>
 @endpush
 
