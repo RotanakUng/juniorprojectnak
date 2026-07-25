@@ -16,10 +16,8 @@ class OrderController extends Controller
     protected function statuses(): array
     {
         return [
-            'Not yet in Progress',
             'In Progress',
             'Completed',
-            'Cancelled',
         ];
     }
 
@@ -66,6 +64,7 @@ class OrderController extends Controller
             'payment_type' => ['required', 'string', 'max:50'],
             'payment_status' => ['required', Rule::in(['Unpaid', 'Paid'])],
             'delivery_type' => ['required', 'string', 'max:50'],
+            'shipping_zone' => ['nullable', Rule::in(['In City', 'Out of City'])],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_name' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -86,7 +85,8 @@ class OrderController extends Controller
                 'payment_type' => $validated['payment_type'],
                 'payment_status' => $validated['payment_status'],
                 'delivery_type' => $validated['delivery_type'],
-                'status' => 'Not yet in Progress',
+                'shipping_zone' => $validated['shipping_zone'] ?? null,
+                'status' => 'In Progress',
                 'total_price' => 0,
             ]);
 
@@ -118,6 +118,7 @@ class OrderController extends Controller
             'payment_type' => ['required', 'string', 'max:50'],
             'payment_status' => ['required', Rule::in(['Unpaid', 'Paid'])],
             'delivery_type' => ['required', 'string', 'max:50'],
+            'shipping_zone' => ['nullable', Rule::in(['In City', 'Out of City'])],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_name' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -137,6 +138,7 @@ class OrderController extends Controller
                 'payment_type' => $validated['payment_type'],
                 'payment_status' => $validated['payment_status'],
                 'delivery_type' => $validated['delivery_type'],
+                'shipping_zone' => $validated['shipping_zone'] ?? null,
             ]);
 
             $order->orderItems()->delete();
@@ -222,6 +224,7 @@ class OrderController extends Controller
                 'Payment',
                 'Payment Status',
                 'Delivery',
+                'Shipping Zone',
                 'Items',
                 'Order Total',
             ]);
@@ -241,6 +244,7 @@ class OrderController extends Controller
                     $order->payment_type,
                     $order->payment_status,
                     $order->delivery_type,
+                    $order->shipping_zone,
                     $items,
                     sprintf('$%.2f', $order->total_price),
                 ]);
@@ -263,6 +267,10 @@ class OrderController extends Controller
 
     public function print(Order $order)
     {
+        if ($order->status === 'In Progress') {
+            $order->update(['status' => 'Completed']);
+        }
+
         return view('orders.print', [
             'order' => $order->load('orderItems'),
         ]);

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('payment_type');
             $table->string('payment_status');
             $table->string('delivery_type');
-            $table->string('status')->default('Not yet in Progress');
+            $table->string('status')->default('In Progress');
             $table->decimal('total_price', 10, 2)->default(0);
             $table->timestamps();
         });

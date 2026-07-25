@@ -272,19 +272,15 @@
         // --- Status Doughnut Chart ---
         const statusCtx = document.getElementById('statusChart').getContext('2d');
         const statusData = {
-            labels: ['Not yet in Progress', 'In Progress', 'Completed', 'Cancelled'],
+            labels: ['In Progress', 'Completed'],
             datasets: [{
                 data: [
-                    {{ $pendingOrders }},
-                    {{ $statusBreakdown['In Progress'] ?? 0 }},
-                    {{ $completedOrders }},
-                    {{ $cancelledOrders }}
+                    {{ $inProgressOrders }},
+                    {{ $completedOrders }}
                 ],
                 backgroundColor: [
-                    '#9a3412', // Orange (Not yet in Progress)
                     '#1e40af', // Blue (In Progress)
-                    '#166534', // Green (Completed)
-                    '#991b1b'  // Red (Cancelled)
+                    '#166534'  // Green (Completed)
                 ],
                 borderWidth: 2,
                 borderColor: '#ffffff',

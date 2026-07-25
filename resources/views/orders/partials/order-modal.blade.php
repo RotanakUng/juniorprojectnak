@@ -72,6 +72,14 @@
                                 <option value="VET" {{ old('delivery_type') === 'VET' ? 'selected' : '' }}>VET</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="shipping_zone">Shipping Zone</label>
+                            <select id="shipping_zone" name="shipping_zone">
+                                <option value="">Select shipping zone</option>
+                                <option value="In City" {{ old('shipping_zone') === 'In City' ? 'selected' : '' }}>In City</option>
+                                <option value="Out of City" {{ old('shipping_zone') === 'Out of City' ? 'selected' : '' }}>Out of City</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                         <style>
@@ -339,7 +347,7 @@
                                         initProductAutocomplete(tr.querySelector('.product-autocomplete'));
                                     });
                                     // populate fields
-                                    ['customer_name','phone','address','payment_type','payment_status','delivery_type'].forEach(f=>{
+                                    ['customer_name','phone','address','payment_type','payment_status','delivery_type','shipping_zone'].forEach(f=>{
                                         const el = form.querySelector('[name="'+f+'"]'); if(el && order[f]!==undefined) el.value = order[f];
                                     });
                                     const method = document.getElementById('order-method'); if(method) method.value = 'PUT';

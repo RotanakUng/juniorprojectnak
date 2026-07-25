@@ -22,7 +22,7 @@ class DummyOrderSeeder extends Seeder
                 'payment_type' => $faker->randomElement(['cash', 'card', 'transfer']),
                 'payment_status' => $faker->randomElement(['pending', 'paid', 'failed']),
                 'delivery_type' => $faker->randomElement(['pickup', 'delivery']),
-                'status' => $faker->randomElement(['Not yet in Progress', 'In Progress', 'Completed', 'Cancelled']),
+                'status' => $faker->randomElement(['In Progress', 'Completed']),
                 'total_price' => 0,
             ]);
 

@@ -72,8 +72,9 @@ class DashboardController extends Controller
         $totalRevenue = (clone $orderQuery)->where('status', '!=', 'Cancelled')->sum('total_price');
         $totalOrders = (clone $orderQuery)->count();
         $completedOrders = (clone $orderQuery)->where('status', 'Completed')->count();
-        $pendingOrders = (clone $orderQuery)->where('status', 'Not yet in Progress')->count();
-        $cancelledOrders = (clone $orderQuery)->where('status', 'Cancelled')->count();
+        $inProgressOrders = (clone $orderQuery)->where('status', 'In Progress')->count();
+        $pendingOrders = 0;
+        $cancelledOrders = 0;
 
         // Calculate AOV
         $aov = $totalOrders > 0 ? $totalRevenue / (clone $orderQuery)->where('status', '!=', 'Cancelled')->count() : 0;
@@ -181,6 +182,7 @@ class DashboardController extends Controller
             'totalRevenue',
             'totalOrders',
             'completedOrders',
+            'inProgressOrders',
             'pendingOrders',
             'cancelledOrders',
             'todayRevenue',

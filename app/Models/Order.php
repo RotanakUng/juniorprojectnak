@@ -18,6 +18,7 @@ class Order extends Model
         'payment_type',
         'payment_status',
         'delivery_type',
+        'shipping_zone',
         'status',
         'total_price',
     ];

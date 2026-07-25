@@ -191,6 +191,7 @@
                                 <tr>
                                     <th>Customer Name</th>
                                     <th>Order Date</th>
+                                    <th>Shipping Zone</th>
                                     <th>Items</th>
                                     <th>Total</th>
                                     <th>Status</th>
@@ -202,6 +203,7 @@
                                     <tr>
                                         <td>{{ $order->customer_name }}</td>
                                         <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
+                                        <td>{{ $order->shipping_zone ?? '—' }}</td>
                                         <td>
                                             <div class="order-items-list">
                                                 @foreach($order->orderItems as $item)
@@ -295,10 +297,8 @@ function setBodyModalOpen(isOpen) {
 
 function statusBadgeClass(status) {
     const map = {
-        'Not yet in Progress': 'badge-red',
         'In Progress': 'badge-orange',
         'Completed': 'badge-green',
-        'Cancelled': 'badge-gray',
     };
     return map[status] || 'badge-gray';
 }
@@ -353,6 +353,7 @@ window.openReceiptModal = async function (orderId) {
         setText('receipt-payment-type', order.payment_type);
         setText('receipt-payment-status', order.payment_status);
         setText('receipt-delivery-type', order.delivery_type);
+        setText('receipt-shipping-zone', order.shipping_zone);
         setText('receipt-total-value', formatReceiptMoney(order.total_price));
 
         const itemsBody = document.getElementById('receipt-items-body');

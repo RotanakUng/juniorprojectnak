@@ -1,79 +1,107 @@
 <div class="receipt-panel">
-    <div class="receipt-top">
-        <div style="display:flex; gap:14px; align-items:center;">
-            <div class="receipt-logo" style="padding: 0; overflow: hidden; background: transparent;">
-                <img src="{{ asset('431219605_1100922654446504_1462438396502192723_n.jpg') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+    {{-- ===== HEADER: Brand + Title + Order Meta ===== --}}
+    <div class="receipt-header-row">
+        <div class="brand-block">
+            <div class="receipt-logo">
+                <img src="{{ asset('431219605_1100922654446504_1462438396502192723_n.jpg') }}" alt="Logo">
             </div>
-            <div>
-                <p style="margin:0; font-size:0.85rem; color:#4b5563; text-transform:uppercase; letter-spacing:0.12em;">Transcent Profumo</p>
-                <h2 style="margin:6px 0 0;">Shipping Receipt</h2>
-                <p class="text-slate" style="margin:6px 0 0;">Review or print the receipt for this order.</p>
+            <div class="brand-text">
+                <span class="brand-name">Transcent Profumo</span>
+                <span class="label-title">Shipping Receipt</span>
+            </div>
+        </div>
+        <div class="order-meta-block">
+            <div class="meta-item">
+                <span class="meta-label">ORDER ID</span>
+                <strong class="meta-value">{{ $order->order_number }}</strong>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">DATE</span>
+                <span class="meta-value">{{ $order->created_at->format('M d, Y H:i') }}</span>
             </div>
         </div>
     </div>
 
-    <div class="receipt-section">
-        <div class="receipt-row">
-            <div class="receipt-box">
-                <p class="text-slate" style="margin:0 0 8px;">Order ID</p>
-                <strong>{{ $order->order_number }}</strong>
-            </div>
-            <div class="receipt-box">
-                <p class="text-slate" style="margin:0 0 8px;">Date</p>
-                <strong>{{ $order->created_at->format('M d, Y H:i') }}</strong>
+    {{-- ===== MAIN GRID: Ship To (Left) + Delivery Details (Right) ===== --}}
+    <div class="receipt-grid">
+        {{-- SHIP TO HERO BOX (Vertical stack for max readability) --}}
+        <div class="receipt-card ship-card">
+            <div class="card-header-tag">SHIP TO RECIPIENT</div>
+            <div class="card-body ship-body">
+                <div class="field-block">
+                    <span class="field-label">CUSTOMER NAME</span>
+                    <strong class="field-value key-detail name-value">{{ $order->customer_name }}</strong>
+                </div>
+                <div class="field-block">
+                    <span class="field-label">PHONE NUMBER</span>
+                    <strong class="field-value key-detail phone-value">{{ $order->phone }}</strong>
+                </div>
+                <div class="field-block">
+                    <span class="field-label">DELIVERY ADDRESS</span>
+                    <strong class="field-value key-detail address-value">{{ $order->address }}</strong>
+                </div>
             </div>
         </div>
-        <div class="receipt-row">
-            <div class="receipt-box">
-                <p class="text-slate" style="margin:0 0 8px;">Customer</p>
-                <strong>{{ $order->customer_name }}</strong>
-                <p class="text-slate" style="margin:8px 0 0;">Phone</p>
-                <strong>{{ $order->phone }}</strong>
-                <p class="text-slate" style="margin:8px 0 0;">Address</p>
-                <strong>{{ $order->address }}</strong>
-            </div>
-            <div class="receipt-box">
-                <p class="text-slate" style="margin:0 0 8px;">Payment</p>
-                <strong>{{ $order->payment_type }}</strong>
-                <p class="text-slate" style="margin:8px 0 0;">Payment Status</p>
-                <strong>{{ $order->payment_status }}</strong>
-                <p class="text-slate" style="margin:8px 0 0;">Delivery</p>
-                <strong>{{ $order->delivery_type }}</strong>
+
+        {{-- DELIVERY & PAYMENT DETAILS BOX --}}
+        <div class="receipt-card details-card">
+            <div class="card-header-tag">DELIVERY & PAYMENT</div>
+            <div class="card-body details-grid">
+                <div class="detail-cell">
+                    <span class="info-label">Delivery</span>
+                    <strong class="badge-value">{{ $order->delivery_type }}</strong>
+                </div>
+                @if($order->shipping_zone)
+                    <div class="detail-cell">
+                        <span class="info-label">Zone</span>
+                        <strong class="badge-value zone-value">{{ $order->shipping_zone }}</strong>
+                    </div>
+                @endif
+                <div class="detail-cell">
+                    <span class="info-label">Payment</span>
+                    <strong class="info-value">{{ $order->payment_type }}</strong>
+                </div>
+                <div class="detail-cell">
+                    <span class="info-label">Status</span>
+                    <strong class="info-value status-value">{{ $order->payment_status }}</strong>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="receipt-section">
+    {{-- ===== ITEMS TABLE ===== --}}
+    <div class="receipt-table-wrapper">
         <table class="receipt-items">
             <thead>
                 <tr>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Total</th>
+                    <th class="col-item">Item</th>
+                    <th class="col-qty">Qty</th>
+                    <th class="col-price">Price</th>
+                    <th class="col-total">Total</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->orderItems as $item)
                     <tr>
-                        <td>{{ $item->product_name }}</td>
-                        <td>{{ $item->quantity }}</td>
-                        <td>${{ number_format($item->unit_price, 2) }}</td>
-                        <td>${{ number_format($item->total_price, 2) }}</td>
+                        <td class="col-item">{{ $item->product_name }}</td>
+                        <td class="col-qty">{{ $item->quantity }}</td>
+                        <td class="col-price">${{ number_format($item->unit_price, 2) }}</td>
+                        <td class="col-total">${{ number_format($item->total_price, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 
+    {{-- ===== TOTAL BAR ===== --}}
     <div class="receipt-total-box">
-        <span>Total</span>
-        <strong>${{ number_format($order->total_price, 2) }}</strong>
-    </div>
-
-    <div class="receipt-footer">
-        <div>123 Scent Avenue, City</div>
-        <div>Phone: 011 234 5678</div>
-        <div>Instagram: @perfume_store</div>
+        <span class="total-title">Total Amount</span>
+        <strong class="total-price">
+            @if($order->payment_status === 'Paid')
+                PAID
+            @else
+                ${{ number_format($order->total_price, 2) }}
+            @endif
+        </strong>
     </div>
 </div>

@@ -6,160 +6,494 @@
     <title>Print Receipt</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-not-yet: #fff7ed; --text-not-yet: #9a3412; --border-not-yet: #fed7aa;
-            --color-in-progress: #eff6ff; --text-in-progress: #1e40af; --border-in-progress: #bfdbfe;
-            --color-completed: #f0fdf4; --text-completed: #166534; --border-completed: #bbf7d0;
-            --color-cancelled: #fef2f2; --text-cancelled: #991b1b; --border-cancelled: #fecaca;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
         }
+
+        * { box-sizing: border-box; }
+
         body { 
             margin: 0; 
             font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; 
-            background: #f8fafc; 
-            color: #111827; 
+            background: var(--background); 
+            color: var(--text-main); 
             -webkit-print-color-adjust: exact !important; 
             print-color-adjust: exact !important; 
         }
-        .receipt-panel { width: min(100%, 920px); margin: 24px auto; background: #fff; border-radius: 28px; padding: 28px; }
-        .receipt-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 18px; align-items: flex-start; }
-        .receipt-logo { width: 52px; height: 52px; border-radius: 18px; background: #111111; display: grid; place-items: center; color: #fff; font-size: 1.25rem; font-weight: 800; }
-        
-        .receipt-badge { 
-            display: inline-flex; 
-            align-items: center; 
-            border-radius: 999px; 
-            padding: 8px 14px; 
-            font-weight: 700; 
-            font-size: 0.88rem;
-            white-space: nowrap;
+
+        /* ===== WEB / SCREEN STYLES ===== */
+        .receipt-panel { 
+            width: min(100%, 780px); 
+            margin: 32px auto; 
+            background: var(--surface); 
+            border-radius: 24px; 
+            padding: 32px; 
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
-        .status-badge-not-yet-in-progress, .status-badge-not-yet { color: var(--text-not-yet); background: var(--color-not-yet); border: 1px solid var(--border-not-yet); }
-        .status-badge-in-progress { color: var(--text-in-progress); background: var(--color-in-progress); border: 1px solid var(--border-in-progress); }
-        .status-badge-completed { color: var(--text-completed); background: var(--color-completed); border: 1px solid var(--border-completed); }
-        .status-badge-cancelled { color: var(--text-cancelled); background: var(--color-cancelled); border: 1px solid var(--border-cancelled); }
 
-        .receipt-section { display: grid; gap: 18px; margin-top: 32px; }
-        .receipt-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-        .receipt-box { padding: 20px; border-radius: 22px; background: #f8fafc; border: 1px solid #e2e8f0; }
-        .receipt-items { width: 100%; border-collapse: collapse; margin-top: 14px; }
-        .receipt-items th, .receipt-items td { padding: 16px 12px; border-bottom: 1px solid #e2e8f0; }
-        .receipt-items th { text-align: left; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; }
-        .receipt-items td { font-size: 0.95rem; }
-        .receipt-total-box { display: flex; justify-content: space-between; align-items: center; padding: 24px; border-radius: 22px; background: #111111; color: #fff; margin-top: 24px; font-size: 1.1rem; }
-        .receipt-footer { margin-top: 32px; color: #64748b; font-size: 0.95rem; line-height: 1.8; text-align: center; }
-        
-        .text-slate { color: #64748b; }
+        .receipt-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
 
-        /* --- 80mm x 80mm SQUARE PRINT STYLES --- */
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .receipt-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .receipt-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-name {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .label-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 2px;
+        }
+
+        .order-meta-block {
+            display: flex;
+            gap: 20px;
+            background: #f1f5f9;
+            padding: 10px 16px;
+            border-radius: 14px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .receipt-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 20px;
+        }
+
+        .receipt-card {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .ship-card {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .card-header-tag {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: 14px;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ship-body {
+            gap: 14px;
+        }
+
+        .field-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .field-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+        }
+
+        .field-value {
+            color: var(--text-main);
+        }
+
+        .name-value, .phone-value, .address-value { 
+            font-size: 1.12rem; 
+            font-weight: 800; 
+            line-height: 1.35; 
+            color: var(--text-main); 
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .detail-cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .badge-value {
+            display: inline-block;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            width: fit-content;
+        }
+
+        .zone-value {
+            background: #2563eb;
+        }
+
+        .receipt-table-wrapper {
+            width: 100%;
+        }
+
+        .receipt-items {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .receipt-items th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .receipt-items td {
+            padding: 14px 14px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .col-qty { text-align: center; }
+        .col-price, .col-total { text-align: right; }
+
+        .receipt-total-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 20px 24px;
+            border-radius: 18px;
+        }
+
+        .total-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .total-price {
+            font-size: 1.35rem;
+            font-weight: 900;
+        }
+
+        /* =========================================================
+           80mm × 80mm STRICT PRINT STYLES
+           ========================================================= */
         @media print { 
             @page {
-                size: 80mm 80mm; /* Strict square dimensions */
-                margin: 0;       /* No default browser margins */
+                size: 80mm 80mm;
+                margin: 0;
             }
+
             body { 
-                background: #fff; 
-                color: #000;
-                font-size: 11px;
-                line-height: 1.2;
+                background: #ffffff !important; 
+                color: #000000 !important;
+                font-family: 'Inter', 'Plus Jakarta Sans', Arial, sans-serif !important;
+                font-size: 8px !important;
+                line-height: 1.2 !important;
             } 
+
             .receipt-panel { 
-                box-shadow: none; 
-                margin: 0; 
-                border-radius: 0; 
-                padding: 3mm 4mm; /* Compact padding */
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                border-radius: 0 !important; 
+                padding: 2mm 2.5mm !important;
                 width: 80mm !important;
                 height: 80mm !important;
                 max-width: 80mm !important;
                 max-height: 80mm !important;
-                box-sizing: border-box;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between; /* Fits layout vertically */
-                overflow: hidden; /* Prevents spilling to 2nd label */
+                box-sizing: border-box !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                overflow: hidden !important;
+                border: 1.2px solid #000000 !important;
+                gap: 0 !important;
             }
-            .receipt-top {
+
+            .receipt-header-row {
                 display: flex !important;
                 justify-content: space-between !important;
                 align-items: center !important;
-                gap: 8px;
+                padding-bottom: 2px !important;
+                border-bottom: 1.5px solid #000000 !important;
+                margin-bottom: 2px !important;
+                flex-shrink: 0 !important;
             }
-            .receipt-top div:first-child {
-                display: flex;
-                align-items: center;
-                gap: 8px;
+
+            .brand-block {
+                display: flex !important;
+                align-items: center !important;
+                gap: 4px !important;
             }
-            .receipt-top p, .receipt-top .text-slate {
-                display: none !important; /* Hide description subtitles to save height */
-            }
+
             .receipt-logo {
-                width: 32px !important;
-                height: 32px !important;
-                border-radius: 8px !important;
+                width: 14px !important;
+                height: 14px !important;
+                border-radius: 3px !important;
             }
-            .receipt-top h2 {
-                font-size: 13px !important;
-                margin: 0 !important;
+
+            .brand-name {
+                font-size: 7.5px !important;
+                font-weight: 800 !important;
+                color: #000000 !important;
+                letter-spacing: 0.04em !important;
             }
-            .receipt-section {
-                margin-top: 4px !important;
-                gap: 6px !important;
-            }
-            /* Make key details columns stack vertically or fit nicely */
-            .receipt-row {
-                grid-template-columns: 1.2fr 0.8fr !important;
-                gap: 6px !important;
-            }
-            .receipt-box {
-                padding: 6px !important;
-                border-radius: 8px !important;
-                background: #fff !important;
-                border: 1px solid #000 !important;
-                font-size: 9.5px !important;
-            }
-            .receipt-box strong {
-                font-size: 10px !important;
-                display: block;
-            }
-            .receipt-box p.text-slate {
-                margin: 0 0 2px 0 !important;
-                font-size: 8px !important;
-                font-weight: bold;
-                text-transform: uppercase;
-                color: #000 !important;
-            }
-            .receipt-box .spaced {
-                margin-top: 4px !important;
-            }
-            /* Table formatting */
-            .receipt-items {
-                margin-top: 4px !important;
-            }
-            .receipt-items th, .receipt-items td {
-                padding: 3px 2px !important;
-                font-size: 9px !important;
-                border-bottom: 1px solid #000 !important;
-            }
-            .receipt-items th {
-                color: #000 !important;
-                font-weight: bold;
-            }
-            /* Total section: monochrome and simple */
-            .receipt-total-box {
-                background: #fff !important;
-                color: #000 !important;
-                border-top: 1.5px dashed #000 !important;
-                border-bottom: 1.5px dashed #000 !important;
-                border-radius: 0 !important;
-                padding: 6px 0 !important;
-                margin-top: 6px !important;
-                font-size: 11px !important;
-                font-weight: bold;
-            }
-            /* Hide non-essential brand footer (saves critical space) */
-            .receipt-footer {
+
+            .label-title {
                 display: none !important;
+            }
+
+            .order-meta-block {
+                background: none !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                gap: 8px !important;
+                display: flex !important;
+            }
+
+            .meta-label {
+                font-size: 6px !important;
+                font-weight: 700 !important;
+                color: #333333 !important;
+            }
+
+            .meta-value {
+                font-size: 8.5px !important;
+                font-weight: 900 !important;
+                color: #000000 !important;
+            }
+
+            .receipt-grid {
+                display: grid !important;
+                grid-template-columns: 58% 40% !important;
+                gap: 2% !important;
+                margin-bottom: 2px !important;
+                flex-shrink: 0 !important;
+            }
+
+            .receipt-card {
+                border: 1.2px solid #000000 !important;
+                border-radius: 4px !important;
+                padding: 3px 4px !important;
+                background: #ffffff !important;
+            }
+
+            .card-header-tag {
+                font-size: 5.8px !important;
+                font-weight: 900 !important;
+                letter-spacing: 0.05em !important;
+                margin-bottom: 2px !important;
+                color: #000000 !important;
+                background: none !important;
+                padding: 0 0 1px 0 !important;
+                border-bottom: 1px solid #000000 !important;
+                display: block !important;
+            }
+
+            .ship-body {
+                gap: 2px !important;
+            }
+
+            .field-block {
+                margin-bottom: 2px !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .field-label {
+                font-size: 5.5px !important;
+                font-weight: 800 !important;
+                color: #444444 !important;
+                letter-spacing: 0.05em !important;
+                display: block !important;
+                margin-bottom: 0px !important;
+            }
+
+            .name-value, .phone-value, .address-value { 
+                font-size: 11.5px !important; 
+                font-weight: 900 !important; 
+                line-height: 1.2 !important;
+                color: #000000 !important;
+                display: block !important;
+                letter-spacing: 0.01em !important;
+            }
+
+            .details-grid {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 2px !important;
+            }
+
+            .detail-cell {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+            }
+
+            .info-label {
+                font-size: 6px !important;
+                font-weight: 700 !important;
+                color: #333333 !important;
+            }
+
+            .info-value {
+                font-size: 8.5px !important;
+                font-weight: 800 !important;
+                color: #000000 !important;
+            }
+
+            .badge-value {
+                background: #000000 !important;
+                color: #ffffff !important;
+                padding: 1px 4px !important;
+                border-radius: 2px !important;
+                font-size: 8px !important;
+                font-weight: 900 !important;
+                width: auto !important;
+            }
+
+            .receipt-table-wrapper {
+                flex: 1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                margin: 2px 0 !important;
+                overflow: hidden !important;
+            }
+
+            .receipt-items {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            .receipt-items th {
+                padding: 1.5px 2px !important;
+                font-size: 7px !important;
+                font-weight: 800 !important;
+                color: #000000 !important;
+                border-bottom: 1.2px solid #000000 !important;
+            }
+
+            .receipt-items td {
+                padding: 2px 2px !important;
+                font-size: 8px !important;
+                color: #000000 !important;
+                border-bottom: 0.5px solid #888888 !important;
+            }
+
+            .receipt-total-box {
+                background: #000000 !important;
+                color: #ffffff !important;
+                padding: 4px 6px !important;
+                border-radius: 3px !important;
+                margin-top: auto !important;
+                flex-shrink: 0 !important;
+            }
+
+            .total-title {
+                font-size: 8px !important;
+                font-weight: 800 !important;
+            }
+
+            .total-price {
+                font-size: 12px !important;
+                font-weight: 900 !important;
             }
         }
     </style>

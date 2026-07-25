@@ -451,7 +451,7 @@
         .orders-table th:first-child { border-top-left-radius: 28px; }
         .orders-table th:last-child { border-top-right-radius: 28px; }
         .orders-table td { background: #ffffff; color: #1f2937; }
-        .orders-table td.col-total, .orders-table th:nth-child(4) { text-align: right; white-space: nowrap; }
+        .orders-table td.col-total, .orders-table th.col-total { text-align: center; white-space: nowrap; }
         .orders-table tbody tr:hover td { background: #fafafa; }
         .orders-table tbody tr:last-child td { border-bottom: none; }
         .orders-table tbody tr:last-child td:first-child { border-bottom-left-radius: 28px; }
