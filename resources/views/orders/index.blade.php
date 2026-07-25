@@ -630,10 +630,18 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.triggerBulkPrint = function() {
-        const selected = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
-        if (selected.length === 0) return;
-        const url = '/orders/print-bulk?ids=' + selected.join(',');
+        const checkedBoxes = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+        if (checkedBoxes.length === 0) return;
+
+        const selectedIds = checkedBoxes.map(cb => cb.value);
+        const url = '/orders/print-bulk?ids=' + selectedIds.join(',');
         window.open(url, '_blank');
+
+        // Automatically uncheck checkboxes and reset button state
+        checkedBoxes.forEach(cb => cb.checked = false);
+        const master = document.getElementById('select-all-orders');
+        if (master) master.checked = false;
+        updateBulkPrintState();
     };
 
     // Real-Time Live Order & Status Syncing (5-second smart background polling)
