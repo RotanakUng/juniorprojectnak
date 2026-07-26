@@ -39,14 +39,16 @@ class DeployController extends Controller
         }
 
         $projectPath = base_path();
+        $envPath = "export PATH={$projectPath}/node_modules/.bin:\$PATH:/usr/bin:/usr/local/bin;";
+
         $commands = [
-            "git -C {$projectPath} pull origin master 2>&1",
-            "export COMPOSER_ALLOW_SUPERUSER=1 && composer --working-dir={$projectPath} install --optimize-autoloader --no-dev 2>&1",
-            "npm --prefix {$projectPath} run build 2>&1",
-            "php {$projectPath}/artisan migrate --force 2>&1",
-            "php {$projectPath}/artisan config:cache 2>&1",
-            "php {$projectPath}/artisan route:cache 2>&1",
-            "php {$projectPath}/artisan view:cache 2>&1",
+            "{$envPath} git -C {$projectPath} pull origin master 2>&1",
+            "{$envPath} export COMPOSER_ALLOW_SUPERUSER=1 && composer --working-dir={$projectPath} install --optimize-autoloader --no-dev 2>&1",
+            "{$envPath} npm --prefix {$projectPath} run build 2>&1",
+            "{$envPath} php {$projectPath}/artisan migrate --force 2>&1",
+            "{$envPath} php {$projectPath}/artisan config:cache 2>&1",
+            "{$envPath} php {$projectPath}/artisan route:cache 2>&1",
+            "{$envPath} php {$projectPath}/artisan view:cache 2>&1",
             "sudo systemctl restart php8.3-fpm 2>&1",
             "sudo systemctl restart nginx 2>&1",
         ];
