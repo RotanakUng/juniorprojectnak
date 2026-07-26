@@ -25,6 +25,13 @@
                 <span>Admin Panel</span>
             </a>
         @endif
+        <div class="theme-toggle-item" onclick="toggleTheme()">
+            <span class="toggle-label">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <span>Dark Mode</span>
+            </span>
+            <button type="button" class="theme-switch" id="theme-switch" aria-label="Toggle dark mode"></button>
+        </div>
         <form method="POST" action="{{ route('logout') }}" style="margin:0;">
             @csrf
             <button type="submit" class="user-menu-item text-danger">

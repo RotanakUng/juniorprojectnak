@@ -268,6 +268,10 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Set chart default font family
         Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const labelColor = isDark ? '#9aa0b0' : '#64748b';
+        const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0, 0, 0, 0.03)';
+        const borderBg = isDark ? '#1a1d27' : '#ffffff';
 
         // --- Status Doughnut Chart ---
         const statusCtx = document.getElementById('statusChart').getContext('2d');
@@ -283,7 +287,7 @@
                     '#166534'  // Green (Completed)
                 ],
                 borderWidth: 2,
-                borderColor: '#ffffff',
+                borderColor: borderBg,
                 hoverOffset: 6
             }]
         };
@@ -303,12 +307,13 @@
                                 size: 12,
                                 weight: '600'
                             },
+                            color: labelColor,
                             usePointStyle: true,
                             padding: 16
                         }
                     },
                     tooltip: {
-                        backgroundColor: '#141414',
+                        backgroundColor: isDark ? '#242733' : '#141414',
                         titleFont: { size: 13, weight: 'bold' },
                         bodyFont: { size: 13 },
                         padding: 12,
@@ -325,9 +330,14 @@
         const revenues = {!! json_encode(array_column(array_reverse($monthlyData), 'revenue')) !!};
         
         // Gradient fill for bars
-        const slateGradient = revenueCtx.createLinearGradient(0, 0, 0, 260);
-        slateGradient.addColorStop(0, '#64748b'); // Slate highlight
-        slateGradient.addColorStop(1, '#334155'); // Slate base
+        const barGradient = revenueCtx.createLinearGradient(0, 0, 0, 260);
+        if (isDark) {
+            barGradient.addColorStop(0, '#60a5fa'); // Vibrant electric sky-blue top
+            barGradient.addColorStop(1, '#1d4ed8'); // Deep royal blue base
+        } else {
+            barGradient.addColorStop(0, '#3b82f6'); 
+            barGradient.addColorStop(1, '#1e40af');
+        }
         
         new Chart(revenueCtx, {
             type: 'bar',
@@ -336,10 +346,10 @@
                 datasets: [{
                     label: 'Revenue',
                     data: revenues,
-                    backgroundColor: slateGradient,
-                    hoverBackgroundColor: '#1e293b',
-                    borderRadius: 6,
-                    barThickness: 24,
+                    backgroundColor: barGradient,
+                    hoverBackgroundColor: isDark ? '#93c5fd' : '#2563eb',
+                    borderRadius: 8,
+                    barThickness: 26,
                     borderSkipped: false
                 }]
             },
@@ -367,12 +377,12 @@
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.03)',
+                            color: gridColor,
                             drawBorder: false
                         },
                         ticks: {
                             font: { size: 11 },
-                            color: '#64748b',
+                            color: labelColor,
                             callback: function(value) {
                                 return '$' + value.toLocaleString();
                             }
@@ -385,7 +395,7 @@
                         },
                         ticks: {
                             font: { size: 11, weight: '600' },
-                            color: '#64748b'
+                            color: labelColor
                         }
                     }
                 }
@@ -544,5 +554,12 @@
         .date-filter-left input, .date-filter-left select { flex: 1 1 auto !important; width: 100% !important; }
         .date-quick-picks { justify-content: center; }
     }
+
+    /* ===== Dashboard Dark Mode ===== */
+    html[data-theme="dark"] .kpi-card { background: #1a1d27; }
+    html[data-theme="dark"] .kpi-card:hover { border-color: rgba(148, 163, 184, 0.3); }
+    html[data-theme="dark"] .kpi-label { color: #9aa0b0; }
+    html[data-theme="dark"] .trend-up { color: #60a5fa; }
+    html[data-theme="dark"] .date-filter-body { border-top-color: rgba(255,255,255,0.06); }
 </style>
 @endpush
