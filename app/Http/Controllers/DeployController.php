@@ -19,7 +19,8 @@ class DeployController extends Controller
      */
     public function run(Request $request)
     {
-        $password = $request->input('password') ?? $request->json('password');
+        $bodyData = json_decode($request->getContent(), true) ?? [];
+        $password = $request->input('password') ?? $bodyData['password'] ?? null;
 
         if (empty($password)) {
             return response()->json([
