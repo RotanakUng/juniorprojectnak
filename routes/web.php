@@ -5,7 +5,12 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\DeployController;
 use Illuminate\Support\Facades\Route;
+
+// Web Deployment Route (Password Protected)
+Route::get('/deploy', [DeployController::class, 'show'])->name('deploy.show');
+Route::post('/deploy', [DeployController::class, 'run'])->name('deploy.run');
 
 // Guest routes
 Route::middleware('guest')->group(function () {
