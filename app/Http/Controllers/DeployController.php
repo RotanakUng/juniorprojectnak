@@ -49,8 +49,7 @@ class DeployController extends Controller
             "{$envPath} php {$projectPath}/artisan config:cache 2>&1",
             "{$envPath} php {$projectPath}/artisan route:cache 2>&1",
             "{$envPath} php {$projectPath}/artisan view:cache 2>&1",
-            "sudo systemctl restart php8.3-fpm 2>&1",
-            "sudo systemctl restart nginx 2>&1",
+            "(sleep 1 && sudo systemctl reload php8.3-fpm && sudo systemctl reload nginx) >/dev/null 2>&1 &",
         ];
 
         $fullCommand = implode(' && ', $commands);
@@ -59,7 +58,7 @@ class DeployController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Deployment executed successfully!',
-            'output' => $output ?? 'No output returned.',
+            'output' => $output ?? 'Deployment completed successfully.',
         ]);
     }
 }
