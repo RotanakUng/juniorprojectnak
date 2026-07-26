@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Process;
 
 class DeployController extends Controller
 {
@@ -20,13 +19,18 @@ class DeployController extends Controller
      */
     public function run(Request $request)
     {
-        $request->validate([
-            'password' => 'required|string',
-        ]);
+        $password = $request->input('password') ?? $request->json('password');
+
+        if (empty($password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password is required.',
+            ], 422);
+        }
 
         $expectedPassword = env('DEPLOY_PASSWORD', 'nakdeploy2026');
 
-        if ($request->input('password') !== $expectedPassword) {
+        if ($password !== $expectedPassword) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid deployment password.',
