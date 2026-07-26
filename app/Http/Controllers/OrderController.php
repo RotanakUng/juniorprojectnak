@@ -162,6 +162,14 @@ class OrderController extends Controller
 
         $order->update(['status' => $validated['status']]);
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Order status updated.',
+                'status' => $order->status,
+            ]);
+        }
+
         return Redirect::route('orders.index')->with('success', 'Order status updated.');
     }
 

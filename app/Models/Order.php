@@ -27,6 +27,11 @@ class Order extends Model
         'total_price' => 'decimal:2',
     ];
 
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

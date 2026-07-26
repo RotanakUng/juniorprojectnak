@@ -316,7 +316,15 @@ function formatReceiptMoney(value) {
 }
 
 function formatReceiptDate(value) {
-    const date = new Date(value);
+    if (!value) return '—';
+    let str = String(value).trim();
+    if (str.includes(' ') && !str.includes('T')) {
+        str = str.replace(' ', 'T');
+    }
+    if (str.endsWith('Z')) {
+        str = str.slice(0, -1);
+    }
+    const date = new Date(str);
     if (Number.isNaN(date.getTime())) return '—';
     return date.toLocaleString('en-US', {
         month: 'short',
@@ -324,6 +332,7 @@ function formatReceiptDate(value) {
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
+        hour12: false
     });
 }
 
@@ -456,29 +465,30 @@ document.addEventListener('DOMContentLoaded', function () {
         if (btn) btn.addEventListener('click', openCreateOrder);
     });
 
-    // Edit buttons (use data-order JSON)
-    document.querySelectorAll('.edit-order-btn').forEach(btn=>{
-        btn.addEventListener('click', function(){
-            const raw = this.dataset.order || this.getAttribute('data-order');
-            if(!raw) return;
-            try{
+    // Dynamic Edit & Delete flow via Event Delegation
+    let pendingDeleteForm = null;
+    document.addEventListener('click', function (e) {
+        const editBtn = e.target.closest('.edit-order-btn');
+        if (editBtn) {
+            const raw = editBtn.dataset.order || editBtn.getAttribute('data-order');
+            if (!raw) return;
+            try {
                 const order = JSON.parse(raw);
-                if(typeof openOrderModal === 'function') openOrderModal(order);
-            }catch(err){
+                if (typeof openOrderModal === 'function') openOrderModal(order);
+            } catch (err) {
                 console.error('Invalid order JSON', err, raw);
             }
-        });
-    });
+            return;
+        }
 
-    // Delete flow
-    let pendingDeleteForm = null;
-    document.querySelectorAll('.delete-order-btn').forEach(btn=>{
-        btn.addEventListener('click', function(e){
+        const deleteBtn = e.target.closest('.delete-order-btn');
+        if (deleteBtn) {
             e.preventDefault();
-            pendingDeleteForm = this.closest('form');
+            pendingDeleteForm = deleteBtn.closest('form');
             const overlay = document.getElementById('delete-modal-overlay');
-            if(overlay) overlay.classList.remove('hidden');
-        });
+            if (overlay) overlay.classList.remove('hidden');
+            return;
+        }
     });
 
     const deleteCancel = document.getElementById('delete-cancel');
@@ -562,23 +572,73 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    document.querySelectorAll('.status-trigger').forEach(trigger => {
-        trigger.addEventListener('click', function (event) {
+    // Status dropdown event delegation (supports static & dynamic rows, AJAX update)
+    document.addEventListener('click', function (event) {
+        const trigger = event.target.closest('.status-trigger');
+        if (trigger) {
             event.preventDefault();
             event.stopPropagation();
-            const dropdown = this.closest('.status-dropdown');
-            document.querySelectorAll('.status-dropdown.open').forEach(el => {
-                if (el !== dropdown) closeStatusDropdown(el);
-            });
-            const isOpen = dropdown.classList.toggle('open');
-            this.setAttribute('aria-expanded', String(isOpen));
-            if (isOpen) {
-                dropdown.style.zIndex = '10000';
-                positionStatusMenu(dropdown);
-            } else {
-                closeStatusDropdown(dropdown);
+            const dropdown = trigger.closest('.status-dropdown');
+            if (dropdown) {
+                document.querySelectorAll('.status-dropdown.open').forEach(el => {
+                    if (el !== dropdown) closeStatusDropdown(el);
+                });
+                const isOpen = dropdown.classList.toggle('open');
+                trigger.setAttribute('aria-expanded', String(isOpen));
+                if (isOpen) {
+                    dropdown.style.zIndex = '10000';
+                    positionStatusMenu(dropdown);
+                } else {
+                    closeStatusDropdown(dropdown);
+                }
             }
-        });
+            return;
+        }
+
+        const option = event.target.closest('.status-option');
+        if (option) {
+            event.preventDefault();
+            event.stopPropagation();
+            const form = option.closest('form');
+            if (!form) return;
+            const newStatus = option.dataset.value;
+            const input = form.querySelector('input[name="status"]');
+            if (input) input.value = newStatus;
+
+            const dropdown = option.closest('.status-dropdown');
+            if (dropdown) closeStatusDropdown(dropdown);
+
+            const triggerBtn = form.querySelector('.status-trigger');
+            const textEl = form.querySelector('.status-pill-text');
+            const newSlug = newStatus.toLowerCase().replace(/ /g, '-');
+
+            // Optimistically update UI without refreshing
+            if (textEl) textEl.textContent = newStatus;
+            if (triggerBtn) {
+                triggerBtn.className = 'status-trigger status-pill status-pill-' + newSlug;
+            }
+
+            // Asynchronous AJAX status update
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(res => {
+                if (!res.ok) form.submit();
+            }).catch(err => {
+                console.error('AJAX status update error', err);
+                form.submit();
+            });
+            return;
+        }
+
+        if (!event.target.closest('.status-dropdown')) {
+            document.querySelectorAll('.status-dropdown.open').forEach(closeStatusDropdown);
+        }
     });
 
     window.addEventListener('scroll', function () {
@@ -586,26 +646,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }, true);
     window.addEventListener('resize', function () {
         document.querySelectorAll('.status-dropdown.open').forEach(positionStatusMenu);
-    });
-
-    document.querySelectorAll('.status-option').forEach(option => {
-        option.addEventListener('click', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            const form = this.closest('form');
-            const input = form.querySelector('input[name="status"]');
-            if (!input) return;
-            input.value = this.dataset.value;
-            const dropdown = this.closest('.status-dropdown');
-            if (dropdown) closeStatusDropdown(dropdown);
-            form.submit();
-        });
-    });
-
-    document.addEventListener('click', function (event) {
-        if (!event.target.closest('.status-dropdown')) {
-            document.querySelectorAll('.status-dropdown.open').forEach(closeStatusDropdown);
-        }
     });
 
     // Batch Label Printing JS
@@ -675,8 +715,21 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {}
     }
 
+    function parseOrderDate(value) {
+        if (!value) return new Date();
+        let str = String(value).trim();
+        if (str.includes(' ') && !str.includes('T')) {
+            str = str.replace(' ', 'T');
+        }
+        if (str.endsWith('Z')) {
+            str = str.slice(0, -1);
+        }
+        const d = new Date(str);
+        return Number.isNaN(d.getTime()) ? new Date() : d;
+    }
+
     function renderOrderRowHTML(order) {
-        const createdAt = new Date(order.created_at);
+        const createdAt = parseOrderDate(order.created_at);
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         const dateFormatted = months[createdAt.getMonth()] + ' ' 
             + String(createdAt.getDate()).padStart(2, '0') + ', ' 
@@ -695,6 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const orderJson = JSON.stringify(order).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
         const statusSlug = (order.status || '').toLowerCase().replace(/ /g, '-');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
         return `
             <td style="width: 44px; text-align: center;"><input type="checkbox" class="order-checkbox" value="${order.id}" style="width:16px; height:16px; cursor:pointer;" onchange="updateBulkPrintState()"></td>
@@ -705,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <td class="col-total">$${parseFloat(order.total_price || 0).toFixed(2)}</td>
             <td class="status-cell">
                 <form action="/orders/${order.id}/status" method="POST" class="status-form">
-                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]')?.content || ''}">
+                    <input type="hidden" name="_token" value="${csrfToken}">
                     <input type="hidden" name="_method" value="PATCH">
                     <input type="hidden" name="status" value="${order.status || ''}" class="status-hidden-input">
                     <div class="status-dropdown">
@@ -716,7 +770,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="status-menu">
                             <button type="button" class="status-option" data-value="In Progress">In Progress</button>
                             <button type="button" class="status-option" data-value="Completed">Completed</button>
-                            <button type="button" class="status-option" data-value="Cancelled">Cancelled</button>
                         </div>
                     </div>
                 </form>
@@ -735,6 +788,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                         <span>Print</span>
                     </a>
+                    <form action="/orders/${order.id}" method="POST" style="display:inline;" class="delete-order-form">
+                        <input type="hidden" name="_token" value="${csrfToken}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="button" class="btn btn-danger btn-small delete-order-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            <span>Delete</span>
+                        </button>
+                    </form>
                 </div>
             </td>
         `;
