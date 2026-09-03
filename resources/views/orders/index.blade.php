@@ -20,9 +20,13 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                     <span>Manage Products</span>
                 </a>
+                <button id="openPickupOrderModal" type="button" class="btn btn-pickup" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                    <span>Pickup</span>
+                </button>
                 <button id="openCreateOrderModal" type="button" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span>Create New Order</span>
+                    <span>Create Order</span>
                 </button>
             </div>
         </div>
@@ -105,7 +109,8 @@
                             <p class="text-slate">Try adjusting your search or status filter.</p>
                             <a href="{{ route('orders.index', ['tab' => $tab]) }}" class="btn btn-secondary btn-small">Clear filters</a>
                         @else
-                            <button type="button" class="btn btn-primary btn-small" id="empty-create-order-spreadsheet">Create New Order</button>
+                            <button type="button" class="btn btn-pickup btn-small" id="empty-pickup-order-spreadsheet">Pickup</button>
+                            <button type="button" class="btn btn-primary btn-small" id="empty-create-order-spreadsheet">Create Order</button>
                         @endif
                     </div>
                 @else
@@ -187,7 +192,8 @@
                             <p class="text-slate">Try adjusting your search or status filter.</p>
                             <a href="{{ route('orders.index', ['tab' => $tab]) }}" class="btn btn-secondary btn-small">Clear filters</a>
                         @else
-                            <button type="button" class="btn btn-primary btn-small" id="empty-create-order">Create New Order</button>
+                            <button type="button" class="btn btn-pickup btn-small" id="empty-pickup-order">Pickup</button>
+                            <button type="button" class="btn btn-primary btn-small" id="empty-create-order">Create Order</button>
                         @endif
                     </div>
                 @else
@@ -447,9 +453,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function openCreateOrder() {
+    function openCreateOrder(pickupMode) {
         if (typeof openOrderModal === 'function') {
-            openOrderModal();
+            openOrderModal(null, pickupMode);
         } else {
             const modal = document.getElementById('order-modal');
             if (modal) modal.classList.remove('hidden');
@@ -458,11 +464,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const openBtn = document.getElementById('openCreateOrderModal');
-    if (openBtn) openBtn.addEventListener('click', openCreateOrder);
+    if (openBtn) openBtn.addEventListener('click', function() { openCreateOrder(false); });
+
+    const pickupBtn = document.getElementById('openPickupOrderModal');
+    if (pickupBtn) pickupBtn.addEventListener('click', function() { openCreateOrder(true); });
 
     ['empty-create-order', 'empty-create-order-spreadsheet'].forEach(function (id) {
         const btn = document.getElementById(id);
-        if (btn) btn.addEventListener('click', openCreateOrder);
+        if (btn) btn.addEventListener('click', function() { openCreateOrder(false); });
+    });
+
+    ['empty-pickup-order', 'empty-pickup-order-spreadsheet'].forEach(function (id) {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', function() { openCreateOrder(true); });
     });
 
     // Dynamic Edit & Delete flow via Event Delegation

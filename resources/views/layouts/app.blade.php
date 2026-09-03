@@ -173,6 +173,12 @@
             border: 1px solid var(--border);
         }
         .btn-ghost:hover { background: #e5e5e5; }
+        .btn-pickup {
+            background: #0d9488;
+            color: #fff;
+            border: 1px solid #0d9488;
+        }
+        .btn-pickup:hover { background: #0f766e; border-color: #0f766e; }
         .page-shell { width: min(1720px, 98vw); max-width: 1720px; margin: 0 auto; padding: 16px 20px 28px; }
         .brand-panel {
             display: flex;
@@ -1042,6 +1048,8 @@
         html[data-theme="dark"] .btn-ghost:hover { background: #2a2d3a; }
         html[data-theme="dark"] .btn-danger { background: #e8eaed; color: #111111; }
         html[data-theme="dark"] .btn-danger:hover { background: #ffffff; }
+        html[data-theme="dark"] .btn-pickup { background: #0d9488; color: #fff; border-color: #0d9488; }
+        html[data-theme="dark"] .btn-pickup:hover { background: #0f766e; border-color: #0f766e; }
 
         /* Search & Form */
         html[data-theme="dark"] .search-input,

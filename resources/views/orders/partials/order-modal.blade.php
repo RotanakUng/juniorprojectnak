@@ -309,7 +309,7 @@
                                 const el = document.getElementById('order-total-value'); if(el) el.textContent = toFixed2(sum);
                             }
 
-                            window.openOrderModal = function(order){
+                            window.openOrderModal = function(order, pickupMode){
                                 const form = document.getElementById('order-form'); if(!form) return;
                                 // refresh product list each time modal opens
                                 window._productsFetched = false;
@@ -317,6 +317,13 @@
                                 // reset form fields
                                 form.reset();
                                 const tbody = document.getElementById('order-items'); if(!tbody) return; tbody.innerHTML = '';
+
+                                // Handle delivery type field visibility for pickup mode
+                                const deliveryGroup = document.getElementById('delivery_type') ? document.getElementById('delivery_type').closest('.form-group') : null;
+                                const deliverySelect = document.getElementById('delivery_type');
+                                const addressEl = document.getElementById('address');
+                                const addressGroup = addressEl ? addressEl.closest('.form-group') : null;
+
                                 const orderItems = (order && (order.orderItems || order.order_items)) || [];
                                 if(order && orderItems.length){
                                     orderItems.forEach((it,i)=>{
@@ -349,15 +356,38 @@
                                     try { if(order && order.id) form.action = '/orders/' + order.id; } catch(e){}
                                     // update modal title and save button text
                                     const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Edit Order';
+                                    const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Update customer details and order items.';
                                     const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Update Order';
+                                    // Edit mode: always show all fields
+                                    if(deliveryGroup) deliveryGroup.style.display = '';
+                                    if(deliverySelect) deliverySelect.removeAttribute('disabled');
+                                    if(addressGroup) addressGroup.style.display = '';
                                 } else {
                                     addOrderItem();
                                     const method = document.getElementById('order-method'); if(method) method.value = 'POST';
                                     const action = document.getElementById('order-action'); if(action) action.value = 'store';
                                     // set default create action
                                     form.action = form.dataset.storeAction || form.action;
-                                    const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Create New Order';
-                                    const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Save Order';
+
+                                    if(pickupMode){
+                                        // Pickup mode: auto-set delivery type and address, hide both fields
+                                        if(deliverySelect) deliverySelect.value = 'PICK UP';
+                                        if(deliveryGroup) deliveryGroup.style.display = 'none';
+                                        if(addressEl) addressEl.value = 'In-store/pickup';
+                                        if(addressGroup) addressGroup.style.display = 'none';
+                                        const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Pickup Order';
+                                        const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Quick pickup — just fill in customer info and items.';
+                                        const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Save Pickup';
+                                    } else {
+                                        // Normal create mode
+                                        if(deliveryGroup) deliveryGroup.style.display = '';
+                                        if(deliverySelect){ deliverySelect.value = ''; deliverySelect.removeAttribute('disabled'); }
+                                        if(addressGroup) addressGroup.style.display = '';
+                                        if(addressEl) addressEl.value = '';
+                                        const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Create New Order';
+                                        const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Complete customer details then choose perfume items.';
+                                        const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Save Order';
+                                    }
                                 }
                                 updateOrderTotal();
                                 showOrderStep(1);
