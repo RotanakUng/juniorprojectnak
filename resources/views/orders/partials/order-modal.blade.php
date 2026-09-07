@@ -377,6 +377,14 @@
                                     const paymentStatusEl = document.getElementById('payment_status');
                                     const paymentStatusGroup = paymentStatusEl ? paymentStatusEl.closest('.form-group') : null;
 
+                                    // Step navigation elements
+                                    const stepNav = document.getElementById('order-step-nav');
+                                    const step1 = document.getElementById('order-step-1');
+                                    const step2 = document.getElementById('order-step-2');
+                                    const backBtn = document.getElementById('step-back');
+                                    const nextBtn = document.getElementById('step-next');
+                                    const saveBtn = document.getElementById('step-save');
+
                                     if(pickupMode){
                                         // Pickup mode: auto-set delivery type and address, hide both fields
                                         if(deliverySelect) deliverySelect.value = 'PICK UP';
@@ -392,8 +400,18 @@
                                         if(paymentStatusEl) paymentStatusEl.value = 'Paid';
                                         if(paymentStatusGroup) paymentStatusGroup.style.display = 'none';
                                         const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Pickup Order';
-                                        const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Quick pickup — just select payment type and add items.';
-                                        const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Save Pickup';
+                                        const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Quick pickup — select payment type, add items, and save.';
+                                        if(saveBtn) saveBtn.textContent = 'Save Pickup';
+
+                                        // Single step: show both steps at once, hide step tabs & nav buttons
+                                        if(stepNav) stepNav.style.display = 'none';
+                                        if(step1) step1.classList.add('active');
+                                        if(step2) step2.classList.add('active');
+                                        if(backBtn) backBtn.classList.add('hidden');
+                                        if(nextBtn) nextBtn.classList.add('hidden');
+                                        if(saveBtn) saveBtn.classList.remove('hidden');
+                                        // Add spacing between the two sections
+                                        if(step2){ step2.style.marginTop = '28px'; step2.style.paddingTop = '24px'; step2.style.borderTop = '1px solid #e2e8f0'; }
                                     } else {
                                         // Normal create mode: show all fields
                                         if(deliveryGroup) deliveryGroup.style.display = '';
@@ -408,11 +426,16 @@
                                         if(paymentStatusEl) paymentStatusEl.value = '';
                                         const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Create New Order';
                                         const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Complete customer details then choose perfume items.';
-                                        const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Save Order';
+                                        if(saveBtn) saveBtn.textContent = 'Save Order';
+
+                                        // Restore 2-step flow
+                                        if(stepNav) stepNav.style.display = '';
+                                        if(step2){ step2.style.marginTop = ''; step2.style.paddingTop = ''; step2.style.borderTop = ''; }
+                                        showOrderStep(1);
                                     }
                                 }
                                 updateOrderTotal();
-                                showOrderStep(1);
+                                if(!pickupMode) showOrderStep(1);
                                 // show modal
                                 const modal = document.getElementById('order-modal'); if(modal) modal.classList.remove('hidden');
                                 const backdrop = modal ? modal.querySelector('.modal-backdrop') : null; if(backdrop) backdrop.classList.remove('hidden');
