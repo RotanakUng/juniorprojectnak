@@ -369,21 +369,43 @@
                                     // set default create action
                                     form.action = form.dataset.storeAction || form.action;
 
+                                    // Get customer name, phone, payment status elements and groups
+                                    const customerNameEl = document.getElementById('customer_name');
+                                    const customerNameGroup = customerNameEl ? customerNameEl.closest('.form-group') : null;
+                                    const phoneEl = document.getElementById('phone');
+                                    const phoneGroup = phoneEl ? phoneEl.closest('.form-group') : null;
+                                    const paymentStatusEl = document.getElementById('payment_status');
+                                    const paymentStatusGroup = paymentStatusEl ? paymentStatusEl.closest('.form-group') : null;
+
                                     if(pickupMode){
                                         // Pickup mode: auto-set delivery type and address, hide both fields
                                         if(deliverySelect) deliverySelect.value = 'PICK UP';
                                         if(deliveryGroup) deliveryGroup.style.display = 'none';
-                                        if(addressEl) addressEl.value = 'In-store/pickup';
+                                        if(addressEl) addressEl.value = 'In-store/pick-up';
                                         if(addressGroup) addressGroup.style.display = 'none';
+                                        // Auto-fill and hide customer name & phone
+                                        if(customerNameEl) customerNameEl.value = 'In-store/pick-up';
+                                        if(customerNameGroup) customerNameGroup.style.display = 'none';
+                                        if(phoneEl) phoneEl.value = 'In-store/pick-up';
+                                        if(phoneGroup) phoneGroup.style.display = 'none';
+                                        // Auto-fill and hide payment status
+                                        if(paymentStatusEl) paymentStatusEl.value = 'Paid';
+                                        if(paymentStatusGroup) paymentStatusGroup.style.display = 'none';
                                         const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Pickup Order';
-                                        const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Quick pickup — just fill in customer info and items.';
+                                        const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Quick pickup — just select payment type and add items.';
                                         const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Save Pickup';
                                     } else {
-                                        // Normal create mode
+                                        // Normal create mode: show all fields
                                         if(deliveryGroup) deliveryGroup.style.display = '';
                                         if(deliverySelect){ deliverySelect.value = ''; deliverySelect.removeAttribute('disabled'); }
                                         if(addressGroup) addressGroup.style.display = '';
                                         if(addressEl) addressEl.value = '';
+                                        if(customerNameGroup) customerNameGroup.style.display = '';
+                                        if(customerNameEl) customerNameEl.value = '';
+                                        if(phoneGroup) phoneGroup.style.display = '';
+                                        if(phoneEl) phoneEl.value = '';
+                                        if(paymentStatusGroup) paymentStatusGroup.style.display = '';
+                                        if(paymentStatusEl) paymentStatusEl.value = '';
                                         const title = document.getElementById('order-modal-title'); if(title) title.textContent = 'Create New Order';
                                         const subtitle = document.getElementById('order-modal-subtitle'); if(subtitle) subtitle.textContent = 'Complete customer details then choose perfume items.';
                                         const saveBtn = document.getElementById('step-save'); if(saveBtn) saveBtn.textContent = 'Save Order';
