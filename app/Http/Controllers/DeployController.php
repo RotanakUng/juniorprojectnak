@@ -52,6 +52,7 @@ class DeployController extends Controller
         $steps = array_merge($steps, [
             'Git Pull' => "{$envPrefix} && git -C {$projectPath} pull origin master 2>&1",
             'Composer Dependencies' => "{$envPrefix} && export COMPOSER_ALLOW_SUPERUSER=1 && composer --working-dir={$projectPath} install --optimize-autoloader --no-dev 2>&1",
+            'NPM Dependencies' => "{$envPrefix} && npm --prefix {$projectPath} install 2>&1",
             'Frontend Build' => "{$envPrefix} && npm --prefix {$projectPath} run build 2>&1",
             'Database Migrations' => "{$envPrefix} && php {$projectPath}/artisan migrate --force 2>&1",
             'Configuration Cache' => "{$envPrefix} && php {$projectPath}/artisan config:cache 2>&1",

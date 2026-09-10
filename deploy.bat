@@ -11,7 +11,7 @@ git push origin master
 
 echo.
 echo [2/3] Connecting to server and updating app...
-ssh -o StrictHostKeyChecking=no root@68.183.183.174 "cd /var/www/juniorprojectnak && git pull origin master && export COMPOSER_ALLOW_SUPERUSER=1 && composer install --optimize-autoloader --no-dev && npm run build && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && chown -R www-data:www-data /var/www/juniorprojectnak && systemctl restart php8.3-fpm && systemctl restart nginx"
+ssh -o StrictHostKeyChecking=no root@68.183.183.174 "cd /var/www/juniorprojectnak && git pull origin master && export COMPOSER_ALLOW_SUPERUSER=1 && composer install --optimize-autoloader --no-dev && npm install && npm run build && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && chown -R www-data:www-data /var/www/juniorprojectnak && systemctl restart php8.3-fpm && systemctl restart nginx"
 
 echo.
 echo ===================================================
