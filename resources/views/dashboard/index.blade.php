@@ -33,7 +33,11 @@
                 </div>
                 @if($hasDateFilter)
                     <span class="filter-chip" style="font-size: 0.88rem; background: var(--accent-gold-light); color: var(--accent-gold); border-color: var(--border-strong);">
-                        📅 Range: <strong>{{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}</strong>
+                        @if($dateRange === 'custom')
+                            📅 Date: <strong>{{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }}</strong>
+                        @else
+                            📅 Range: <strong>{{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}</strong>
+                        @endif
                     </span>
                 @else
                     <span class="filter-chip" style="background: var(--color-completed-bg); color: var(--color-completed-text); border-color: var(--color-completed-border);">
@@ -50,16 +54,20 @@
                     <a href="{{ route('dashboard', ['date_range' => 'last_30_days']) }}" class="btn btn-secondary btn-small {{ $dateRange === 'last_30_days' ? 'active-pick' : '' }}">Last 30 Days</a>
                     <a href="{{ route('dashboard', ['date_range' => 'this_month']) }}" class="btn btn-secondary btn-small {{ $dateRange === 'this_month' ? 'active-pick' : '' }}">This Month</a>
                 </div>
-                <form method="GET" action="{{ route('dashboard') }}" class="date-filter-form" style="margin: 0;">
+                <form method="GET" action="{{ route('dashboard') }}" class="date-filter-form" style="margin: 0;" id="dashFilterForm">
                     <div class="date-filter-left">
-                        <select name="date_range" class="search-select" onchange="this.form.submit()" style="flex: 0 0 200px; min-width: 170px; height: 38px; min-height: 38px; padding: 6px 14px; border-radius: 8px;">
+                        <select name="date_range" class="search-select" id="dateRangeSelect" onchange="handleDateRangeChange(this)" style="flex: 0 0 200px; min-width: 170px; height: 38px; min-height: 38px; padding: 6px 14px; border-radius: 8px;">
                             <option value="all_time" {{ $dateRange === 'all_time' ? 'selected' : '' }}>All Time</option>
                             <option value="today" {{ $dateRange === 'today' ? 'selected' : '' }}>Today</option>
                             <option value="yesterday" {{ $dateRange === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
                             <option value="last_7_days" {{ $dateRange === 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
                             <option value="last_30_days" {{ $dateRange === 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
                             <option value="this_month" {{ $dateRange === 'this_month' ? 'selected' : '' }}>This Month</option>
+                            <option value="custom" {{ $dateRange === 'custom' ? 'selected' : '' }}>Select Date</option>
                         </select>
+                        <div id="customDateBox" style="display: {{ $dateRange === 'custom' ? 'flex' : 'none' }}; align-items: center; gap: 8px;">
+                            <input type="date" name="date" id="customDateInput" class="search-input" value="{{ $dateRange === 'custom' ? request('date', '') : '' }}" style="height: 38px; min-height: 38px; padding: 6px 14px; border-radius: 8px; min-width: 160px; font-size: 0.88rem;" onchange="document.getElementById('dashFilterForm').submit()">
+                        </div>
                         @if($hasDateFilter)
                             <a href="{{ route('dashboard', ['date_range' => 'all_time']) }}" class="btn btn-secondary btn-small">✕ Clear</a>
                         @endif
@@ -263,6 +271,23 @@
 @endsection
 
 @push('scripts')
+<script>
+    function handleDateRangeChange(select) {
+        const customDateBox = document.getElementById('customDateBox');
+        const customDateInput = document.getElementById('customDateInput');
+        const form = document.getElementById('dashFilterForm');
+
+        if (select.value === 'custom') {
+            customDateBox.style.display = 'flex';
+            // Focus the date input so the user can pick a date
+            setTimeout(() => customDateInput.focus(), 50);
+        } else {
+            customDateBox.style.display = 'none';
+            customDateInput.value = '';
+            form.submit();
+        }
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -53,6 +53,21 @@ class DashboardController extends Controller
                 $prevStartDate = $today->copy()->subMonth()->startOfMonth();
                 $prevEndDate = $today->copy()->subMonth()->endOfMonth();
                 break;
+            case 'custom':
+                $customDate = $request->query('date');
+                if ($customDate) {
+                    try {
+                        $parsedDate = Carbon::parse($customDate);
+                        $startDate = $parsedDate->copy()->startOfDay();
+                        $endDate = $parsedDate->copy()->endOfDay();
+                        $prevStartDate = $parsedDate->copy()->subDay()->startOfDay();
+                        $prevEndDate = $parsedDate->copy()->subDay()->endOfDay();
+                    } catch (\Exception $e) {
+                        $startDate = null;
+                        $endDate = null;
+                    }
+                }
+                break;
             case 'all_time':
             default:
                 $startDate = null;
