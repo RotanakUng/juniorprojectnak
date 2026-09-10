@@ -153,6 +153,44 @@
             color: #991b1b;
             border: 1px solid #fecaca;
         }
+
+        .log-box {
+            display: none;
+            margin-top: 16px;
+            text-align: left;
+        }
+
+        .log-toggle-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            display: inline-block;
+        }
+
+        .log-toggle-btn:hover {
+            color: #0f172a;
+        }
+
+        .log-output {
+            display: none;
+            margin-top: 10px;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.75rem;
+            line-height: 1.45;
+            max-height: 220px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -179,9 +217,28 @@
         </div>
 
         <div class="status-badge" id="statusBadge"></div>
+
+        <div class="log-box" id="logBox">
+            <button type="button" class="log-toggle-btn" id="logToggleBtn">View logs</button>
+            <pre class="log-output" id="logOutput"></pre>
+        </div>
     </div>
 
     <script>
+        const logBox = document.getElementById('logBox');
+        const logToggleBtn = document.getElementById('logToggleBtn');
+        const logOutput = document.getElementById('logOutput');
+
+        logToggleBtn.addEventListener('click', function () {
+            if (logOutput.style.display === 'block') {
+                logOutput.style.display = 'none';
+                logToggleBtn.textContent = 'View logs';
+            } else {
+                logOutput.style.display = 'block';
+                logToggleBtn.textContent = 'Hide logs';
+            }
+        });
+
         document.getElementById('deployForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -194,6 +251,11 @@
             const statusBadge = document.getElementById('statusBadge');
 
             statusBadge.style.display = 'none';
+            logBox.style.display = 'none';
+            logOutput.style.display = 'none';
+            logOutput.textContent = '';
+            logToggleBtn.textContent = 'View logs';
+
             progressBox.style.display = 'block';
             deployBtn.disabled = true;
 
@@ -233,6 +295,11 @@
                         statusBadge.className = 'status-badge status-success';
                         statusBadge.textContent = '✓ Deployed Successfully';
                         statusBadge.style.display = 'block';
+
+                        if (data.output) {
+                            logBox.style.display = 'block';
+                            logOutput.textContent = data.output;
+                        }
                     }, 400);
                 } else {
                     clearInterval(interval);
@@ -240,6 +307,13 @@
                     statusBadge.className = 'status-badge status-error';
                     statusBadge.textContent = '✕ ' + (data.message || 'Deployment Failed');
                     statusBadge.style.display = 'block';
+
+                    if (data.output) {
+                        logBox.style.display = 'block';
+                        logOutput.textContent = data.output;
+                        logOutput.style.display = 'block';
+                        logToggleBtn.textContent = 'Hide logs';
+                    }
                 }
             } catch (err) {
                 clearInterval(interval);
@@ -247,6 +321,11 @@
                 statusBadge.className = 'status-badge status-error';
                 statusBadge.textContent = '✕ Connection Error';
                 statusBadge.style.display = 'block';
+
+                logBox.style.display = 'block';
+                logOutput.textContent = err.message || 'Failed to connect to deployment server.';
+                logOutput.style.display = 'block';
+                logToggleBtn.textContent = 'Hide logs';
             } finally {
                 deployBtn.disabled = false;
             }
