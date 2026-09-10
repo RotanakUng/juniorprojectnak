@@ -44,7 +44,12 @@ class DeployController extends Controller
         $projectPath = base_path();
         $envPrefix = "export PATH={$projectPath}/node_modules/.bin:\$PATH:/usr/bin:/usr/local/bin";
 
-        $steps = [
+        $steps = [];
+        if (PHP_OS_FAMILY === 'Linux') {
+            $steps['Permissions Sync'] = "sudo chown -R www-data:www-data {$projectPath} 2>&1";
+        }
+
+        $steps = array_merge($steps, [
             'Git Pull' => "{$envPrefix} && git -C {$projectPath} pull origin master 2>&1",
             'Composer Dependencies' => "{$envPrefix} && export COMPOSER_ALLOW_SUPERUSER=1 && composer --working-dir={$projectPath} install --optimize-autoloader --no-dev 2>&1",
             'Frontend Build' => "{$envPrefix} && npm --prefix {$projectPath} run build 2>&1",
@@ -52,7 +57,7 @@ class DeployController extends Controller
             'Configuration Cache' => "{$envPrefix} && php {$projectPath}/artisan config:cache 2>&1",
             'Route Cache' => "{$envPrefix} && php {$projectPath}/artisan route:cache 2>&1",
             'View Cache' => "{$envPrefix} && php {$projectPath}/artisan view:cache 2>&1",
-        ];
+        ]);
 
         $outputLog = [];
         $hasError = false;
