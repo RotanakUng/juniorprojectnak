@@ -223,7 +223,7 @@
             <pre class="log-output" id="logOutput"></pre>
         </div>
 
-        <div style="margin-top: 24px; font-size: 0.75rem; color: #94a3b8;">Automated Production Sync &bull; v1.1</div>
+        <div style="margin-top: 24px; font-size: 0.75rem; color: #94a3b8;">Automated Production Sync &bull; v1.2</div>
     </div>
 
     <script>
