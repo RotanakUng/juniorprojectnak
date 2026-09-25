@@ -28,6 +28,7 @@
                 @csrf
                 <input type="hidden" name="_method" value="POST" id="order-method" />
                 <input type="hidden" name="action" id="order-action" value="store" />
+                <input type="hidden" name="pickup_mode" id="pickup-mode" value="0" />
                 <input type="hidden" name="current_step" id="current-step" value="1" />
 
                 <div class="modal-form-body">
@@ -386,6 +387,8 @@
                                     const saveBtn = document.getElementById('step-save');
 
                                     if(pickupMode){
+                                        // Pickup mode: flag for backend auto-complete
+                                        const pickupInput = document.getElementById('pickup-mode'); if(pickupInput) pickupInput.value = '1';
                                         // Pickup mode: auto-set delivery type and address, hide both fields
                                         if(deliverySelect) deliverySelect.value = 'PICK UP';
                                         if(deliveryGroup) deliveryGroup.style.display = 'none';
@@ -413,6 +416,8 @@
                                         // Add spacing between the two sections
                                         if(step2){ step2.style.marginTop = '28px'; step2.style.paddingTop = '24px'; step2.style.borderTop = '1px solid #e2e8f0'; }
                                     } else {
+                                        // Normal create mode: clear pickup flag
+                                        const pickupInput = document.getElementById('pickup-mode'); if(pickupInput) pickupInput.value = '0';
                                         // Normal create mode: show all fields
                                         if(deliveryGroup) deliveryGroup.style.display = '';
                                         if(deliverySelect){ deliverySelect.value = ''; deliverySelect.removeAttribute('disabled'); }

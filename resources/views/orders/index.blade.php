@@ -147,7 +147,7 @@
                                         <td>{{ $order->address }}</td>
                                         <td>{{ $order->payment_type }}</td>
                                         <td>{{ $order->payment_status }}</td>
-                                        <td>{{ $order->delivery_type }}</td>
+                                        <td><span class="delivery-badge delivery-badge-{{ strtolower(str_replace(' ', '-', $order->delivery_type)) }}">{{ $order->delivery_type }}</span></td>
                                         <td class="col-items">
                                             <div class="item-list">
                                                 @foreach($order->orderItems as $item)
@@ -217,7 +217,7 @@
                                         <td style="width: 44px; text-align: center;"><input type="checkbox" class="order-checkbox" value="{{ $order->id }}" style="width:16px; height:16px; cursor:pointer;" onchange="updateBulkPrintState()"></td>
                                         <td>{{ $order->customer_name }}</td>
                                         <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
-                                        <td>{{ $order->delivery_type }}</td>
+                                        <td><span class="delivery-badge delivery-badge-{{ strtolower(str_replace(' ', '-', $order->delivery_type)) }}">{{ $order->delivery_type }}</span></td>
                                         <td>
                                             <div class="order-items-list">
                                                 @foreach($order->orderItems as $item)
@@ -768,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <td style="width: 44px; text-align: center;"><input type="checkbox" class="order-checkbox" value="${order.id}" style="width:16px; height:16px; cursor:pointer;" onchange="updateBulkPrintState()"></td>
             <td>${order.customer_name || ''}</td>
             <td>${dateFormatted}</td>
-            <td>${order.delivery_type || ''}</td>
+            <td><span class="delivery-badge delivery-badge-${(order.delivery_type || '').toLowerCase().replace(/ /g, '-')}">${order.delivery_type || ''}</span></td>
             <td><div class="order-items-list">${itemsHTML}</div></td>
             <td class="col-total">$${parseFloat(order.total_price || 0).toFixed(2)}</td>
             <td class="status-cell">

@@ -84,7 +84,7 @@ class OrderController extends Controller
                 'payment_type' => $validated['payment_type'],
                 'payment_status' => $validated['payment_status'],
                 'delivery_type' => $validated['delivery_type'],
-                'status' => 'In Progress',
+                'status' => $request->input('pickup_mode') === '1' ? 'Completed' : 'In Progress',
                 'total_price' => 0,
             ]);
 

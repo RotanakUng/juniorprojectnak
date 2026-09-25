@@ -409,6 +409,25 @@
         .status-dropdown .status-pill.status-pill-in-progress { color: var(--color-progress-text); background: var(--color-progress-bg); border: 1px solid var(--color-progress-border); box-shadow: none; }
         .status-dropdown .status-pill.status-pill-completed { color: var(--color-completed-text); background: var(--color-completed-bg); border: 1px solid var(--color-completed-border); box-shadow: none; }
         .status-dropdown .status-pill.status-pill-cancelled { color: var(--color-cancelled-text); background: var(--color-cancelled-bg); border: 1px solid var(--color-cancelled-border); box-shadow: none; }
+
+        /* Delivery-type color badges */
+        .delivery-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.03em; white-space: nowrap; min-width: 110px; }
+        .delivery-badge::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .delivery-badge-cod { color: #1d4ed8; background: #dbeafe; border: 1px solid #93c5fd; }
+        .delivery-badge-cod::before { background: #3b82f6; }
+        .delivery-badge-vet { color: #c2410c; background: #fff7ed; border: 1px solid #fdba74; }
+        .delivery-badge-vet::before { background: #f97316; }
+        .delivery-badge-walk-in,
+        .delivery-badge-pick-up { color: #15803d; background: #dcfce7; border: 1px solid #86efac; }
+        .delivery-badge-walk-in::before,
+        .delivery-badge-pick-up::before { background: #22c55e; }
+
+        /* Dark mode overrides for delivery badges */
+        html[data-theme="dark"] .delivery-badge-cod { color: #93c5fd; background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.3); }
+        html[data-theme="dark"] .delivery-badge-vet { color: #fdba74; background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.3); }
+        html[data-theme="dark"] .delivery-badge-walk-in,
+        html[data-theme="dark"] .delivery-badge-pick-up { color: #86efac; background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); }
+
         /* Status pill icons are handled by unified classes below */
         .status-dropdown .status-menu { max-height: 220px; overflow-y: auto; }
         .status-dropdown .status-menu.is-fixed { position: fixed; top: auto; left: auto; z-index: 10001; }
