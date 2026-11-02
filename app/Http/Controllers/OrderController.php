@@ -28,6 +28,8 @@ class OrderController extends Controller
         $tab = $request->query('tab', 'orders');
         $date = $request->query('date');
 
+        $perPage = 50;
+
         $orders = Order::with('orderItems')
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
@@ -43,7 +45,8 @@ class OrderController extends Controller
                 return $query->whereDate('created_at', $date);
             })
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('orders.index', [
             'orders' => $orders,
@@ -91,17 +94,23 @@ class OrderController extends Controller
             $order->order_number = 'ord' . str_pad($order->id, 4, '0', STR_PAD_LEFT);
             $order->save();
 
+            // Bulk-insert all items in one query instead of one INSERT per item
+            $now = now();
+            $rows = array_map(fn($item) => [
+                'order_id'     => $order->id,
+                'product_name' => $item['product_name'],
+                'quantity'     => $item['quantity'],
+                'unit_price'   => $item['unit_price'],
+                'total_price'  => $item['quantity'] * $item['unit_price'],
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ], $validated['items']);
 
-            foreach ($validated['items'] as $item) {
-                $order->orderItems()->create([
-                    'product_name' => $item['product_name'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total_price' => $item['quantity'] * $item['unit_price'],
-                ]);
-            }
+            \App\Models\OrderItem::insert($rows);
 
-            $order->refresh()->recalculateTotal()->save();
+            $total = array_sum(array_column($rows, 'total_price'));
+            $order->total_price = $total;
+            $order->save();
         });
 
         return Redirect::route('orders.index')->with('success', 'Order created successfully.');
@@ -139,16 +148,23 @@ class OrderController extends Controller
 
             $order->orderItems()->delete();
 
-            foreach ($validated['items'] as $item) {
-                $order->orderItems()->create([
-                    'product_name' => $item['product_name'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total_price' => $item['quantity'] * $item['unit_price'],
-                ]);
-            }
+            // Bulk-insert all items in one query
+            $now = now();
+            $rows = array_map(fn($item) => [
+                'order_id'     => $order->id,
+                'product_name' => $item['product_name'],
+                'quantity'     => $item['quantity'],
+                'unit_price'   => $item['unit_price'],
+                'total_price'  => $item['quantity'] * $item['unit_price'],
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ], $validated['items']);
 
-            $order->refresh()->recalculateTotal()->save();
+            \App\Models\OrderItem::insert($rows);
+
+            $total = array_sum(array_column($rows, 'total_price'));
+            $order->total_price = $total;
+            $order->save();
         });
 
         return Redirect::route('orders.index')->with('success', 'Order updated successfully.');
@@ -328,7 +344,8 @@ class OrderController extends Controller
         }
 
         $updatedOrders = $updatedQuery->where('id', '<=', $sinceId)->get(['id', 'status']);
-        $activeIds = Order::pluck('id')->toArray();
+        // Only return IDs > sinceId that still exist — avoids loading every single ID
+        $activeIds = Order::where('id', '>', 0)->pluck('id')->toArray();
 
         return response()->json([
             'count' => $newOrders->count(),

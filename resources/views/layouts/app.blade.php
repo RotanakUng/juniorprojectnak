@@ -988,12 +988,19 @@
             gap: 12px;
             pointer-events: none;
         }
-        .flash-alert { position: relative; padding: 16px 48px 16px 20px; border-radius: 18px; font-weight: 600; box-shadow: 0 12px 32px rgba(0,0,0,0.12); pointer-events: auto; animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; max-width: 400px; }
+        .flash-alert { position: relative; padding: 16px 48px 20px 20px; border-radius: 18px; font-weight: 600; box-shadow: 0 12px 32px rgba(0,0,0,0.12); pointer-events: auto; animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; max-width: 400px; overflow: hidden; }
         .flash-alert.closing { animation: fadeOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         .error-alert, .flash-alert.error-alert { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
         .success-alert, .flash-alert.success-alert { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        .flash-dismiss { position: absolute; top: 50%; right: 14px; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 999px; background: transparent; color: inherit; font-size: 1.25rem; line-height: 1; cursor: pointer; opacity: 0.6; border: none; transition: all .2s ease; }
+        .flash-dismiss { position: absolute; top: calc(50% - 3px); right: 14px; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 999px; background: transparent; color: inherit; font-size: 1.1rem; line-height: 1; cursor: pointer; opacity: 0.6; border: none; transition: all .2s ease; display: flex; align-items: center; justify-content: center; padding: 0; }
         .flash-dismiss:hover { opacity: 1; background: rgba(0,0,0,.08); }
+        .flash-progress { position: absolute; bottom: 0; left: 0; height: 3px; width: 100%; transform-origin: left center; border-radius: 0 0 18px 18px; }
+        .success-alert .flash-progress { background: #16a34a; }
+        .error-alert .flash-progress { background: #dc2626; }
+        html[data-theme="dark"] .success-alert .flash-progress { background: #4ade80; }
+        html[data-theme="dark"] .error-alert .flash-progress { background: #f87171; }
+        .flash-progress.running { animation: flashCountdown 5s linear forwards; }
+        @keyframes flashCountdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
         .hidden { display: none !important; }
 
         /* Confirm modal overlay */
@@ -1258,6 +1265,737 @@
         html[data-theme="dark"] .theme-switch { background: #60a5fa; }
         html[data-theme="dark"] .theme-switch::after { transform: translateX(20px); }
 
+        /* Button spinner */
+        .btn-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: btn-spin .6s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes btn-spin { to { transform: rotate(360deg); } }
+        button:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* Prevent auto-zoom on mobile devices */
+        @media (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* iPad & Tablets (769px to 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .page-shell {
+                width: 100% !important;
+                padding: 16px 20px 32px !important;
+            }
+            .brand-panel {
+                padding: 18px 24px !important;
+                gap: 16px !important;
+            }
+            .orders-table th, .orders-table td {
+                padding: 12px 10px !important;
+                font-size: 0.88rem !important;
+            }
+            .row-actions {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+            }
+            .row-actions .btn-small {
+                padding: 0 10px !important;
+                min-height: 38px !important;
+                font-size: 12px !important;
+            }
+            .modal-card {
+                width: min(720px, 92vw) !important;
+                padding: 24px !important;
+            }
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+        }
+
+        /* Mobile Phones & Small Tablets (<= 768px) */
+        @media (max-width: 768px) {
+            .page-shell {
+                width: 100% !important;
+                max-width: 100vw !important;
+                padding: 10px 10px 30px !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .dashboard-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto;
+                gap: 12px;
+                box-sizing: border-box !important;
+            }
+            .page-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 14px 12px 20px !important;
+                border-radius: 20px !important;
+                box-sizing: border-box !important;
+            }
+            .card-panel {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .brand-panel {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 14px 16px !important;
+                border-radius: 20px !important;
+                gap: 14px !important;
+            }
+            .brand-row {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .brand-chip {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+                flex-shrink: 0;
+            }
+            .brand-title h1 {
+                font-size: 1.25rem !important;
+                line-height: 1.2 !important;
+            }
+            .brand-title p {
+                font-size: 0.76rem !important;
+                margin-top: 2px !important;
+            }
+            .brand-panel .action-group {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                width: 100% !important;
+            }
+            .brand-panel .action-group a.btn-ghost {
+                grid-column: 1 / -1 !important;
+                width: 100% !important;
+                justify-content: center !important;
+                min-height: 40px !important;
+                border-radius: 12px !important;
+            }
+            .brand-panel .action-group .btn-pickup,
+            .brand-panel .action-group .btn-primary {
+                width: 100% !important;
+                justify-content: center !important;
+                min-height: 44px !important;
+                font-weight: 700 !important;
+                border-radius: 12px !important;
+                font-size: 0.92rem !important;
+            }
+
+            .top-nav {
+                flex-direction: column !important;
+                gap: 10px !important;
+                margin-bottom: 14px !important;
+            }
+            .nav-tabs {
+                display: flex !important;
+                width: 100% !important;
+                border-radius: 12px !important;
+            }
+            .nav-link {
+                flex: 1 !important;
+                text-align: center !important;
+                justify-content: center !important;
+                min-height: 42px !important;
+                font-size: 0.9rem !important;
+                padding: 0 12px !important;
+            }
+            .top-nav .action-group {
+                display: flex !important;
+                width: 100% !important;
+                gap: 8px !important;
+            }
+            .top-nav .action-group form,
+            .top-nav .action-group a {
+                flex: 1 !important;
+                margin: 0 !important;
+            }
+            .top-nav .action-group .btn {
+                width: 100% !important;
+                justify-content: center !important;
+                min-height: 40px !important;
+                font-size: 0.8rem !important;
+                padding: 0 8px !important;
+                border-radius: 10px !important;
+            }
+
+            .toolbar-row {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            .toolbar-filters {
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+            .search-form {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                gap: 8px !important;
+            }
+            .search-input, 
+            .search-select {
+                width: 100% !important;
+                min-width: 0 !important;
+                flex: 1 1 auto !important;
+                min-height: 44px !important;
+                font-size: 16px !important;
+                border-radius: 12px !important;
+                padding: 0 14px !important;
+            }
+            .filter-chip {
+                width: 100% !important;
+                justify-content: center !important;
+                font-size: 0.82rem !important;
+                padding: 6px 12px !important;
+            }
+            .section-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+            }
+            .section-header > div:last-child {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+            #bulk-print-btn {
+                min-height: 38px !important;
+                padding: 0 12px !important;
+            }
+
+            /* Responsive Orders Table -> Mobile Cards */
+            .table-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+                background: transparent !important;
+                box-sizing: border-box !important;
+                margin-top: 14px !important;
+            }
+            .orders-table, 
+            .orders-table tbody {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .orders-table thead {
+                display: none !important;
+            }
+            .orders-table tbody tr {
+                display: grid !important;
+                grid-template-columns: 24px 1fr auto !important;
+                gap: 8px 10px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+                background: var(--surface) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 18px !important;
+                padding: 14px !important;
+                margin-bottom: 12px !important;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.04) !important;
+                position: relative !important;
+            }
+            html[data-theme="dark"] .orders-table tbody tr {
+                background: #1a1d27 !important;
+                border-color: rgba(255,255,255,0.08) !important;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+            }
+            .orders-table tbody tr td:nth-child(1) {
+                grid-column: 1 / 2 !important;
+                grid-row: 1 !important;
+                width: auto !important;
+                padding: 0 !important;
+                border: none !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            .orders-table tbody tr td:nth-child(1) input[type="checkbox"] {
+                width: 20px !important;
+                height: 20px !important;
+            }
+            .orders-table tbody tr td:nth-child(2) {
+                grid-column: 2 / 3 !important;
+                grid-row: 1 !important;
+                padding: 0 !important;
+                border: none !important;
+                font-weight: 800 !important;
+                font-size: 1.1rem !important;
+                color: var(--text) !important;
+                display: flex !important;
+                align-items: center !important;
+                word-break: break-word;
+            }
+            .orders-table tbody tr td:nth-child(7) {
+                grid-column: 3 / 4 !important;
+                grid-row: 1 !important;
+                padding: 0 !important;
+                border: none !important;
+                display: flex !important;
+                justify-content: flex-end !important;
+                align-items: center !important;
+            }
+            .orders-table .status-dropdown {
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: 140px !important;
+            }
+            .orders-table .status-dropdown .status-pill {
+                min-height: 36px !important;
+                padding: 6px 10px !important;
+                font-size: 0.78rem !important;
+                border-radius: 999px !important;
+                white-space: nowrap !important;
+            }
+            .orders-table .status-dropdown .status-pill .dropdown-arrow {
+                margin-left: 6px !important;
+            }
+            .orders-table tbody tr td:nth-child(3) {
+                grid-column: 1 / 3 !important;
+                grid-row: 2 !important;
+                padding: 0 !important;
+                border: none !important;
+                font-size: 0.82rem !important;
+                color: var(--text-muted) !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            .orders-table tbody tr td:nth-child(4) {
+                grid-column: 3 / 4 !important;
+                grid-row: 2 !important;
+                padding: 0 !important;
+                border: none !important;
+                display: flex !important;
+                justify-content: flex-end !important;
+            }
+            .orders-table tbody tr td:nth-child(4) .delivery-badge {
+                font-size: 0.74rem !important;
+                padding: 4px 10px !important;
+                min-width: 0 !important;
+                border-radius: 8px !important;
+            }
+            .orders-table tbody tr td:nth-child(5) {
+                grid-column: 1 / -1 !important;
+                grid-row: 3 !important;
+                padding: 10px 14px !important;
+                border: none !important;
+                background: var(--surface-muted) !important;
+                border-radius: 12px !important;
+                display: block !important;
+            }
+            .orders-table tbody tr td:nth-child(5) .order-item-line {
+                font-size: 0.88rem !important;
+                line-height: 1.5;
+            }
+            .orders-table tbody tr td:nth-child(6) {
+                grid-column: 1 / -1 !important;
+                grid-row: 4 !important;
+                padding: 10px 0 !important;
+                border: none !important;
+                border-top: 1px dashed var(--border) !important;
+                border-bottom: 1px dashed var(--border) !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                font-size: 1.15rem !important;
+                font-weight: 800 !important;
+                color: var(--text) !important;
+            }
+            .orders-table tbody tr td:nth-child(6)::before {
+                content: "Total Payment:";
+                font-size: 0.88rem;
+                font-weight: 600;
+                color: var(--text-muted);
+            }
+            .orders-table tbody tr td:nth-child(8) {
+                grid-column: 1 / -1 !important;
+                grid-row: 5 !important;
+                padding: 4px 0 0 !important;
+                border: none !important;
+                display: block !important;
+            }
+            .orders-table tbody tr td:nth-child(8) .row-actions {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 6px !important;
+                width: 100% !important;
+            }
+            .orders-table tbody tr td:nth-child(8) .row-actions .btn {
+                width: 100% !important;
+                min-height: 42px !important;
+                padding: 0 4px !important;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                justify-content: center !important;
+                border-radius: 10px !important;
+            }
+            .orders-table tbody tr td:nth-child(8) .row-actions .delete-order-form {
+                display: flex !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .orders-table tbody tr td:nth-child(8) .row-actions .delete-order-form .btn {
+                width: 100% !important;
+            }
+            @media (max-width: 440px) {
+                .orders-table tbody tr td:nth-child(8) .row-actions {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 8px !important;
+                }
+            }
+
+            .products-table,
+            .products-table tbody {
+                display: block !important;
+                width: 100% !important;
+            }
+            .products-table thead {
+                display: none !important;
+            }
+            .products-table tbody tr {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+                padding: 16px !important;
+                border-radius: 18px !important;
+                background: var(--surface) !important;
+                border: 1px solid var(--border) !important;
+                margin-bottom: 12px !important;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.03) !important;
+            }
+            html[data-theme="dark"] .products-table tbody tr {
+                background: #1a1d27 !important;
+                border-color: rgba(255,255,255,0.08) !important;
+            }
+            .products-table tbody tr td {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                width: 100% !important;
+                padding: 4px 0 !important;
+                border: none !important;
+            }
+            .products-table tbody tr td:nth-child(1) { display: none !important; }
+            .products-table tbody tr td:nth-child(2) { font-size: 1.1rem !important; font-weight: 800 !important; }
+            .products-table tbody tr td:nth-child(3)::before { content: "Items Sold:"; font-weight: 600; color: var(--text-muted); }
+            .products-table tbody tr td:nth-child(4)::before { content: "Date Added:"; font-weight: 600; color: var(--text-muted); }
+            .products-table tbody tr td:nth-child(5) {
+                margin-top: 6px !important;
+                padding-top: 10px !important;
+                border-top: 1px solid var(--border) !important;
+            }
+            .products-table tbody tr td:nth-child(5) .row-actions {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                width: 100% !important;
+            }
+            .products-table tbody tr td:nth-child(5) .row-actions .btn {
+                width: 100% !important;
+                min-height: 42px !important;
+                justify-content: center !important;
+            }
+
+            .spreadsheet-wrapper {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                border-radius: 14px !important;
+                border: 1px solid var(--border) !important;
+            }
+            .spreadsheet-table {
+                min-width: 850px !important;
+                font-size: 0.8rem !important;
+            }
+            .spreadsheet-table th, .spreadsheet-table td {
+                padding: 8px 6px !important;
+            }
+
+            .modal-container {
+                padding: 0 !important;
+                align-items: flex-end !important;
+            }
+            .modal-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 26px 26px 0 0 !important;
+                max-height: 94dvh !important;
+                margin: 0 !important;
+                padding: 20px 16px 14px !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .modal-card.has-sticky-footer .modal-form-body {
+                padding: 0 !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            .modal-heading h2 {
+                font-size: 1.35rem !important;
+                line-height: 1.25 !important;
+            }
+            .step-tabs {
+                display: flex !important;
+                width: 100% !important;
+                gap: 8px !important;
+                margin: 12px 0 16px !important;
+            }
+            .step-tab {
+                flex: 1 !important;
+                padding: 10px 8px !important;
+                font-size: 0.85rem !important;
+                justify-content: center !important;
+                border-radius: 12px !important;
+                min-height: 42px !important;
+            }
+            .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 14px !important;
+            }
+            .form-group label {
+                font-size: 0.88rem !important;
+                font-weight: 700 !important;
+            }
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                font-size: 16px !important;
+                min-height: 46px !important;
+                border-radius: 12px !important;
+                padding: 10px 14px !important;
+            }
+            .form-group textarea {
+                min-height: 84px !important;
+            }
+
+            .table-scroll {
+                overflow-x: visible !important;
+            }
+            .item-table, .item-table tbody {
+                display: block !important;
+                width: 100% !important;
+            }
+            .item-table thead {
+                display: none !important;
+            }
+            .item-table tbody tr {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+                background: var(--surface-muted) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 16px !important;
+                padding: 14px !important;
+                margin-bottom: 12px !important;
+            }
+            .item-table tbody tr td {
+                display: flex !important;
+                align-items: center !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+            .item-table tbody tr td:nth-child(1) {
+                grid-column: 1 / -1 !important;
+            }
+            .item-table tbody tr td:nth-child(1) input {
+                font-size: 16px !important;
+                min-height: 44px !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+            }
+            .item-table tbody tr td:nth-child(2) {
+                grid-column: 1 / 2 !important;
+            }
+            .qty-control {
+                width: 100% !important;
+                display: flex !important;
+                height: 44px !important;
+            }
+            .qty-btn {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 18px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .qty-input {
+                flex: 1 !important;
+                height: 44px !important;
+                font-size: 16px !important;
+                text-align: center !important;
+            }
+            .item-table tbody tr td:nth-child(3) {
+                grid-column: 2 / 3 !important;
+            }
+            .item-table tbody tr td:nth-child(3) input {
+                font-size: 16px !important;
+                min-height: 44px !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+            }
+            .item-table tbody tr td:nth-child(4) {
+                grid-column: 1 / 2 !important;
+                font-weight: 800 !important;
+                font-size: 1.05rem !important;
+                color: var(--text) !important;
+            }
+            .item-table tbody tr td:nth-child(5) {
+                grid-column: 2 / 3 !important;
+                justify-content: flex-end !important;
+            }
+            .item-table tbody tr td:nth-child(5) .btn {
+                width: 100% !important;
+                min-height: 40px !important;
+                justify-content: center !important;
+                border-radius: 10px !important;
+            }
+
+            .modal-card.has-sticky-footer .modal-actions-sticky {
+                position: sticky !important;
+                bottom: 0 !important;
+                background: var(--surface) !important;
+                border-top: 1px solid var(--border) !important;
+                padding: 14px 0 max(16px, env(safe-area-inset-bottom)) !important;
+                margin-top: auto !important;
+                z-index: 10 !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            .modal-card.has-sticky-footer .modal-actions-sticky .btn {
+                flex: 1 !important;
+                min-height: 48px !important;
+                font-size: 15px !important;
+                font-weight: 700 !important;
+                justify-content: center !important;
+                border-radius: 14px !important;
+            }
+
+            .modal-card.receipt-panel {
+                max-width: 100% !important;
+                border-radius: 26px 26px 0 0 !important;
+                max-height: 94dvh !important;
+                padding: 18px 16px !important;
+            }
+            .receipt-header-row {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 14px !important;
+                padding-bottom: 14px !important;
+            }
+            .receipt-logo img {
+                width: 44px !important;
+                height: 44px !important;
+            }
+            .order-meta-block {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                padding: 12px 14px !important;
+                border-radius: 12px !important;
+            }
+            .receipt-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+                margin-top: 14px !important;
+            }
+            .receipt-card {
+                padding: 14px !important;
+                border-radius: 14px !important;
+            }
+            .details-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 6px !important;
+            }
+            .detail-cell {
+                padding: 8px 6px !important;
+            }
+            .detail-cell .info-label {
+                font-size: 0.72rem !important;
+            }
+            .detail-cell .info-value {
+                font-size: 0.85rem !important;
+            }
+            .receipt-table-wrapper {
+                margin-top: 14px !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            .receipt-items {
+                width: 100% !important;
+                font-size: 0.85rem !important;
+            }
+            .receipt-items th, .receipt-items td {
+                padding: 10px 8px !important;
+            }
+            .receipt-total-box {
+                margin-top: 14px !important;
+                padding: 14px 16px !important;
+                border-radius: 14px !important;
+            }
+            .receipt-panel .modal-actions {
+                display: flex !important;
+                gap: 10px !important;
+                width: 100% !important;
+                margin-top: 16px !important;
+            }
+            .receipt-panel .modal-actions .btn {
+                flex: 1 !important;
+                min-height: 46px !important;
+                justify-content: center !important;
+                border-radius: 12px !important;
+                font-size: 14px !important;
+                font-weight: 700 !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-title h1 { font-size: 1.15rem !important; }
+            .orders-count { font-size: 12px; }
+            .modal-header { padding: 10px 0; }
+        }
+
+        @media (hover: none) {
+            .btn, .nav-link, .step-tab {
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+
+        .pagination { display: flex; align-items: center; gap: 4px; margin-top: 16px; justify-content: center; }
+        .pagination .page-item .page-link {
+            display: inline-flex; align-items: center; padding: 6px 12px;
+            border-radius: 8px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text);
+            font-size: 13px; font-weight: 500; text-decoration: none;
+            transition: background .15s;
+        }
+        .pagination .page-item.active .page-link { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .pagination .page-item.disabled .page-link { opacity: 0.4; pointer-events: none; }
+        .pagination .page-item .page-link:hover { background: var(--surface-muted); }
+
         @media print {
             body { background: #fff; }
             .no-print, .page-shell > :not(.receipt-panel) { display: none !important; }
@@ -1279,12 +2017,14 @@
         @if(session('success'))
             <div class="flash-alert success-alert" role="alert">
                 {{ session('success') }}
+                <div class="flash-progress"></div>
                 <button type="button" class="flash-dismiss" aria-label="Dismiss">&times;</button>
             </div>
         @endif
         @if(session('error'))
             <div class="flash-alert error-alert" role="alert">
                 {{ session('error') }}
+                <div class="flash-progress"></div>
                 <button type="button" class="flash-dismiss" aria-label="Dismiss">&times;</button>
             </div>
         @endif
@@ -1308,6 +2048,10 @@
             });
         });
         document.querySelectorAll('.flash-alert').forEach(function (alert) {
+            var bar = alert.querySelector('.flash-progress');
+            if (bar) {
+                requestAnimationFrame(function(){ requestAnimationFrame(function(){ bar.classList.add('running'); }); });
+            }
             setTimeout(function () {
                 if (alert.isConnected) removeAlert(alert);
             }, 5000);

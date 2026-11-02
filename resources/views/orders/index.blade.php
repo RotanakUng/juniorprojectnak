@@ -72,7 +72,7 @@
                     <form action="{{ route('orders.index') }}" method="GET" class="search-form">
                         <input type="hidden" name="tab" value="{{ $tab }}">
                         <input type="text" name="search" class="search-input" placeholder="Search by customer, order number, or status…" value="{{ $search }}">
-                        <input type="date" name="date" class="search-select" value="{{ $date }}" style="flex: 0 0 180px; cursor: pointer;" onclick="this.showPicker()" onkeydown="if(event.key!=='Tab')event.preventDefault()">
+                        <input type="date" name="date" class="search-select" value="{{ $date }}" style="cursor: pointer;" onclick="this.showPicker()" onkeydown="if(event.key!=='Tab')event.preventDefault()">
                         <select name="status" class="search-select">
                             <option value="all">All statuses</option>
                             @foreach($statuses as $item)
@@ -98,7 +98,7 @@
                         <h2 class="text-lg" style="margin:0;">Orders Spreadsheet</h2>
                         <p class="text-slate section-lead">Full order + item details in a spreadsheet layout.</p>
                     </div>
-                    <span class="orders-count">{{ $orders->count() }} order{{ $orders->count() === 1 ? '' : 's' }}</span>
+                    <span class="orders-count">{{ $orders->total() }} order{{ $orders->total() === 1 ? '' : 's' }}</span>
                 </div>
 
                 @if($orders->isEmpty())
@@ -168,6 +168,7 @@
                         </span>
                         <span>${{ number_format($orders->sum('total_price'), 2) }}</span>
                     </div>
+                    {{ $orders->links() }}
                 @endif
             @else
                 <div class="panel-row section-header">
@@ -180,7 +181,7 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                             <span>Print Selected (<span id="selected-count">0</span>)</span>
                         </button>
-                        <span class="orders-count">{{ $orders->count() }} order{{ $orders->count() === 1 ? '' : 's' }}</span>
+                        <span class="orders-count">{{ $orders->total() }} order{{ $orders->total() === 1 ? '' : 's' }}</span>
                     </div>
                 </div>
 
@@ -282,6 +283,7 @@
                         </span>
                         <span>${{ number_format($orders->sum('total_price'), 2) }}</span>
                     </div>
+                    {{ $orders->links() }}
                 @endif
             @endif
         </div>
@@ -574,8 +576,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const rect = trigger.getBoundingClientRect();
         menu.classList.add('is-fixed');
-        menu.style.left = rect.left + 'px';
-        menu.style.minWidth = Math.max(rect.width, 220) + 'px';
+        const minW = Math.max(rect.width, 200);
+        menu.style.minWidth = minW + 'px';
+        let left = rect.left;
+        if (left + minW > window.innerWidth - 12) {
+            left = Math.max(12, window.innerWidth - minW - 12);
+        }
+        menu.style.left = left + 'px';
 
         const menuHeight = menu.offsetHeight;
         const spaceBelow = window.innerHeight - rect.bottom;
@@ -699,7 +706,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // Real-Time Live Order & Status Syncing (5-second smart background polling)
-    window.maxRenderedOrderId = {{ $orders->max('id') ?? 0 }};
+    window.maxRenderedOrderId = {{ $orders->getCollection()->max('id') ?? 0 }};
     window.lastSyncTime = new Date().toISOString();
     let isLiveSyncing = false;
 

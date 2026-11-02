@@ -125,8 +125,10 @@
                                 function positionDropdown(){
                                     const rect = input.getBoundingClientRect();
                                     dropdown.style.top = (rect.bottom + 4) + 'px';
-                                    dropdown.style.left = rect.left + 'px';
-                                    dropdown.style.width = rect.width + 'px';
+                                    let left = Math.max(8, rect.left);
+                                    let width = Math.min(rect.width, window.innerWidth - left - 8);
+                                    dropdown.style.left = left + 'px';
+                                    dropdown.style.width = width + 'px';
                                 }
 
                                 function render(filter){
@@ -502,6 +504,15 @@
                                 }
                                 if(orderForm){
                                     orderForm.addEventListener('submit', normalizePriceInputs);
+                                    // Loading state: disable save button on submit to prevent double-submits
+                                    orderForm.addEventListener('submit', function(){
+                                        var btn = document.getElementById('step-save');
+                                        if(btn && !btn.disabled){
+                                            btn.disabled = true;
+                                            var label = btn.textContent.trim();
+                                            btn.innerHTML = '<span class="btn-spinner"></span>' + label.replace('Save','Saving\u2026').replace('Update','Updating\u2026').replace('Pickup','Saving\u2026');
+                                        }
+                                    });
                                 }
                                 updateOrderTotal();
                                 showOrderStep(1);
