@@ -168,7 +168,7 @@
                         </span>
                         <span>${{ number_format($orders->sum('total_price'), 2) }}</span>
                     </div>
-                    {{ $orders->links() }}
+                    {{ $orders->links('partials.pagination') }}
                 @endif
             @else
                 <div class="panel-row section-header">
@@ -283,7 +283,7 @@
                         </span>
                         <span>${{ number_format($orders->sum('total_price'), 2) }}</span>
                     </div>
-                    {{ $orders->links() }}
+                    {{ $orders->links('partials.pagination') }}
                 @endif
             @endif
         </div>
