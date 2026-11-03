@@ -378,6 +378,7 @@
         .search-input::placeholder { color: #64748b; }
         .search-input:focus, .search-select:focus { outline: none; border-color: #111111; box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08); background: #fff; }
         .search-form button { min-height: 52px; }
+        .search-submit-btn { display: none !important; }
         .form-group select {
             background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
             background-position: calc(100% - 18px) calc(50% - 4px), calc(100% - 13px) calc(50% - 4px);
@@ -1440,27 +1441,45 @@
             .toolbar-row {
                 flex-direction: column !important;
                 gap: 10px !important;
+                margin-bottom: 14px !important;
             }
             .toolbar-filters {
                 width: 100% !important;
                 min-width: 0 !important;
+                flex: none !important;
             }
             .search-form {
-                display: flex !important;
-                flex-direction: column !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
                 width: 100% !important;
                 min-width: 0 !important;
                 gap: 8px !important;
             }
-            .search-input, 
-            .search-select {
+            .search-input {
+                grid-column: 1 / -1 !important;
                 width: 100% !important;
                 min-width: 0 !important;
-                flex: 1 1 auto !important;
                 min-height: 44px !important;
                 font-size: 16px !important;
                 border-radius: 12px !important;
                 padding: 0 14px !important;
+            }
+            .search-select {
+                width: 100% !important;
+                min-width: 0 !important;
+                min-height: 44px !important;
+                font-size: 16px !important;
+                border-radius: 12px !important;
+                padding: 0 10px !important;
+            }
+            .search-submit-btn {
+                grid-column: 1 / -1 !important;
+                display: inline-flex !important;
+                width: 100% !important;
+                min-height: 42px !important;
+                justify-content: center !important;
+                border-radius: 12px !important;
+                font-size: 0.92rem !important;
             }
             .filter-chip {
                 width: 100% !important;
@@ -1720,19 +1739,153 @@
                 justify-content: center !important;
             }
 
+            /* Mobile Spreadsheet -> Card Layout */
             .spreadsheet-wrapper {
-                overflow-x: auto !important;
+                overflow-x: visible !important;
                 -webkit-overflow-scrolling: touch !important;
-                border-radius: 14px !important;
-                border: 1px solid var(--border) !important;
+                border-radius: 0 !important;
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
             }
             .spreadsheet-table {
-                min-width: 850px !important;
-                font-size: 0.8rem !important;
+                display: block !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                font-size: 0.88rem !important;
             }
-            .spreadsheet-table th, .spreadsheet-table td {
-                padding: 8px 6px !important;
+            .spreadsheet-table thead {
+                display: none !important;
             }
+            .spreadsheet-table tbody {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+            .spreadsheet-table tbody tr {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 6px 12px !important;
+                width: 100% !important;
+                background: var(--surface) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 18px !important;
+                padding: 14px !important;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.04) !important;
+                box-sizing: border-box !important;
+            }
+            html[data-theme="dark"] .spreadsheet-table tbody tr {
+                background: #1a1d27 !important;
+                border-color: rgba(255,255,255,0.08) !important;
+            }
+            .spreadsheet-table tbody tr td {
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 4px 0 !important;
+                border: none !important;
+                background: transparent !important;
+                width: auto !important;
+                min-width: 0 !important;
+                word-break: break-word !important;
+            }
+            .spreadsheet-table tbody tr td::before {
+                font-size: 0.7rem !important;
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.05em !important;
+                color: var(--text-muted) !important;
+                margin-bottom: 2px !important;
+            }
+            /* Column 1: Order ID */
+            .spreadsheet-table tbody tr td:nth-child(1) {
+                grid-column: 1 / 2 !important;
+                font-weight: 800 !important;
+                font-size: 1rem !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(1)::before { content: "Order" !important; }
+            /* Column 2: Date */
+            .spreadsheet-table tbody tr td:nth-child(2) {
+                grid-column: 2 / 3 !important;
+                text-align: right !important;
+                align-items: flex-end !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(2)::before { content: "Date" !important; }
+            /* Column 3: Status */
+            .spreadsheet-table tbody tr td:nth-child(3) {
+                grid-column: 1 / -1 !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(3)::before { content: "Status" !important; }
+            /* Column 4: Customer */
+            .spreadsheet-table tbody tr td:nth-child(4) {
+                grid-column: 1 / 2 !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(4)::before { content: "Customer" !important; }
+            /* Column 5: Phone */
+            .spreadsheet-table tbody tr td:nth-child(5) {
+                grid-column: 2 / 3 !important;
+                text-align: right !important;
+                align-items: flex-end !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(5)::before { content: "Phone" !important; }
+            /* Column 6: Address */
+            .spreadsheet-table tbody tr td:nth-child(6) {
+                grid-column: 1 / -1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(6)::before { content: "Address" !important; }
+            /* Column 7: Pay Type */
+            .spreadsheet-table tbody tr td:nth-child(7) {
+                grid-column: 1 / 2 !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(7)::before { content: "Pay Type" !important; }
+            /* Column 8: Paid */
+            .spreadsheet-table tbody tr td:nth-child(8) {
+                grid-column: 2 / 3 !important;
+                text-align: right !important;
+                align-items: flex-end !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(8)::before { content: "Paid" !important; }
+            /* Column 9: Delivery */
+            .spreadsheet-table tbody tr td:nth-child(9) {
+                grid-column: 1 / -1 !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(9)::before { content: "Delivery" !important; }
+            .spreadsheet-table tbody tr td:nth-child(9) .delivery-badge {
+                min-width: 0 !important;
+                font-size: 0.78rem !important;
+            }
+            /* Column 10: Items */
+            .spreadsheet-table tbody tr td:nth-child(10) {
+                grid-column: 1 / -1 !important;
+                background: var(--surface-muted) !important;
+                border-radius: 12px !important;
+                padding: 10px 12px !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(10)::before { content: "Items" !important; }
+            .spreadsheet-table .item-list div {
+                font-size: 0.84rem !important;
+            }
+            /* Column 11: Total */
+            .spreadsheet-table tbody tr td:nth-child(11) {
+                grid-column: 1 / -1 !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 10px 0 4px !important;
+                border-top: 1px dashed var(--border) !important;
+                font-size: 1.1rem !important;
+                font-weight: 800 !important;
+                color: var(--text) !important;
+            }
+            .spreadsheet-table tbody tr td:nth-child(11)::before { content: "Total" !important; font-size: 0.82rem !important; font-weight: 600 !important; color: var(--text-muted) !important; }
+            .spreadsheet-table tbody tr td:nth-child(11).col-total { text-align: left !important; }
 
             .modal-container {
                 padding: 0 !important;
@@ -2012,6 +2165,8 @@
             font-weight: 700;
         }
 
+        .tp-pagination-mobile { display: none; }
+        .tp-pagination-desktop { display: flex; }
         .tp-pagination-controls {
             display: flex;
             align-items: center;
@@ -2129,7 +2284,8 @@
                 flex-direction: column;
                 align-items: center;
                 gap: 12px;
-                padding: 14px;
+                padding: 12px 14px;
+                margin-top: 16px;
             }
 
             .tp-pagination-info {
@@ -2137,21 +2293,56 @@
                 font-size: 0.82rem;
             }
 
-            .tp-pagination-controls {
-                width: 100%;
-                justify-content: center;
-                gap: 4px;
+            .tp-pagination-desktop {
+                display: none !important;
+            }
+
+            .tp-pagination-mobile {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                width: 100% !important;
+                gap: 8px !important;
+            }
+
+            .tp-mobile-page-badge {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 0.84rem !important;
+                font-weight: 600 !important;
+                color: var(--text-muted) !important;
+                padding: 6px 14px !important;
+                background: var(--surface-muted) !important;
+                border-radius: 999px !important;
+                border: 1px solid var(--border) !important;
+                white-space: nowrap !important;
+            }
+
+            .tp-mobile-page-badge .tp-pagination-bold {
+                color: var(--text) !important;
+            }
+
+            html[data-theme="dark"] .tp-mobile-page-badge {
+                background: #242733 !important;
+                border-color: rgba(255, 255, 255, 0.08) !important;
+                color: #9aa0b0 !important;
+            }
+
+            html[data-theme="dark"] .tp-mobile-page-badge .tp-pagination-bold {
+                color: #e8eaed !important;
+            }
+
+            .tp-pagination-mobile .tp-page-nav {
+                flex: 0 0 auto !important;
+                min-width: 76px !important;
+                justify-content: center !important;
             }
 
             .tp-page-btn {
-                min-height: 36px;
-                padding: 0 10px;
-                font-size: 0.82rem;
-            }
-
-            .tp-page-btn.tp-page-num {
-                min-width: 34px;
-                padding: 0 8px;
+                min-height: 38px;
+                padding: 0 12px;
+                font-size: 0.84rem;
             }
         }
 

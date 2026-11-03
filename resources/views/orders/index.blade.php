@@ -72,13 +72,17 @@
                     <form action="{{ route('orders.index') }}" method="GET" class="search-form">
                         <input type="hidden" name="tab" value="{{ $tab }}">
                         <input type="text" name="search" class="search-input" placeholder="Search by customer, order number, or status…" value="{{ $search }}">
-                        <input type="date" name="date" class="search-select" value="{{ $date }}" style="cursor: pointer;" onclick="this.showPicker()" onkeydown="if(event.key!=='Tab')event.preventDefault()">
-                        <select name="status" class="search-select">
+                        <input type="date" name="date" class="search-select" value="{{ $date }}" style="cursor: pointer;" onclick="this.showPicker()" onkeydown="if(event.key!=='Tab')event.preventDefault()" onchange="this.form.submit()">
+                        <select name="status" class="search-select" onchange="this.form.submit()">
                             <option value="all">All statuses</option>
                             @foreach($statuses as $item)
                                 <option value="{{ $item }}" {{ $status === $item ? 'selected' : '' }}>{{ $item }}</option>
                             @endforeach
                         </select>
+                        <button type="submit" class="btn btn-primary btn-small search-submit-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <span>Search</span>
+                        </button>
                     </form>
                 </div>
                 @if($search || $status !== 'all' || $date)

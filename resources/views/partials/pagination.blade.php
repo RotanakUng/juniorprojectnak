@@ -4,7 +4,39 @@
             Showing <span class="tp-pagination-bold">{{ $paginator->firstItem() }}</span> to <span class="tp-pagination-bold">{{ $paginator->lastItem() }}</span> of <span class="tp-pagination-bold">{{ $paginator->total() }}</span> orders
         </div>
 
-        <div class="tp-pagination-controls">
+        {{-- Mobile compact pager: Prev | Page X of Y | Next --}}
+        <div class="tp-pagination-mobile">
+            @if ($paginator->onFirstPage())
+                <span class="tp-page-btn tp-page-nav is-disabled" aria-disabled="true" aria-label="Previous page">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <span>Prev</span>
+                </span>
+            @else
+                <a href="{{ $paginator->previousPageUrl() }}" class="tp-page-btn tp-page-nav" rel="prev" aria-label="Previous page">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <span>Prev</span>
+                </a>
+            @endif
+
+            <span class="tp-mobile-page-badge">
+                Page <span class="tp-pagination-bold">{{ $paginator->currentPage() }}</span> of <span class="tp-pagination-bold">{{ $paginator->lastPage() }}</span>
+            </span>
+
+            @if ($paginator->hasMorePages())
+                <a href="{{ $paginator->nextPageUrl() }}" class="tp-page-btn tp-page-nav" rel="next" aria-label="Next page">
+                    <span>Next</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+            @else
+                <span class="tp-page-btn tp-page-nav is-disabled" aria-disabled="true" aria-label="Next page">
+                    <span>Next</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </span>
+            @endif
+        </div>
+
+        {{-- Desktop numbered pager --}}
+        <div class="tp-pagination-desktop tp-pagination-controls">
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
                 <span class="tp-page-btn tp-page-nav is-disabled" aria-disabled="true" aria-label="Previous page">
